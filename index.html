@@ -2,33 +2,80 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Maps4meConnect — Gerador de Waypoints KMZ (v3 • Fidelidade Original + WPML 1.0.2)</title>
-  <!-- FIX #6: Adicionado Subresource Integrity (SRI) e crossorigin="anonymous" nas bibliotecas estáticas CDN. Nota: cdn.tailwindcss.com (script JIT dinâmico) e chart.umd.min.js (hash oficial chart.min.js v4.4.1: integrity="sha512-L0Shl7nXXzIlBSUUPpxrokqq4ojqgZFQczTYlGjzONGTDAcLremjwaWv5A+EDLnxhQzY5xUZPWLOLqYRkY0Cbw==") devem preferencialmente ser hospedados localmente em produção crítica. -->
-  <script src="https://cdn.tailwindcss.com/3.4.17" crossorigin="anonymous"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0d5c63" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="ZAVA MAPING" />
+  <title>ZAVA MAPING — Gerador de Waypoints KMZ</title>
+  <!-- Bibliotecas funcionais (mapa, exportação e gráfico). O layout NÃO depende de nenhum framework CSS externo. -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
     crossorigin="anonymous" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
     crossorigin="anonymous"></script>
+  <script>window.L||document.write('<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"><\/script>')</script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"
     integrity="sha512-XMVd28F1oH/O71fzwBnV7HucLxVwtxf26XV8P4wPk26EDxuGZ91N8bsOttmnomcCD3CS5ZMRL50H0GgOHvegtg=="
     crossorigin="anonymous"></script>
+  <script>window.JSZip||document.write('<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"><\/script>')</script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" crossorigin="anonymous"></script>
+  <script>window.Chart||document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"><\/script>')</script>
+<script>
+/* Diagnóstico: mostra na tela qual biblioteca falhou ou qual erro ocorreu */
+(function(){
+  var errs=[];
+  function show(){
+    var miss=[];
+    if(!window.L)miss.push('Leaflet (mapa)');
+    if(!window.JSZip)miss.push('JSZip (exportação KMZ)');
+    if(!window.Chart)miss.push('Chart.js (perfil de elevação)');
+    if(!miss.length&&!errs.length)return;
+    var d=document.getElementById('zavaDiag');
+    if(!d){d=document.createElement('div');d.id='zavaDiag';
+      d.style.cssText='position:fixed;left:8px;right:8px;top:8px;z-index:99999;background:#fff5f5;color:#7f1d1d;border:1px solid #feb2b2;border-radius:12px;padding:10px 12px;font:12px/1.4 -apple-system,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.25)';
+      d.onclick=function(){d.style.display='none'};
+      (document.body||document.documentElement).appendChild(d);}
+    d.textContent=(miss.length?'Não carregou: '+miss.join(', ')+'. Abra no Safari com internet (fora da pré-visualização do app). ':'')+(errs.length?'Erro: '+errs[errs.length-1]:'')+' (toque para fechar)';
+  }
+  window.addEventListener('error',function(e){errs.push((e.message||'erro')+(e.lineno?' (linha '+e.lineno+')':''));show();});
+  window.addEventListener('load',show);
+})();
+</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
+/* ---- Reset base (equivalente ao preflight, em CSS puro) ---- */
+*,*::before,*::after{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e3dccd}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%;line-height:1.5;-webkit-tap-highlight-color:transparent}
+h1,h2,h3,h4,p,ul,ol,figure,pre{margin:0}
+h1,h2,h3,h4{font-size:inherit;font-weight:inherit}
+ul,ol{list-style:none;padding:0}
+img,svg,video,canvas{display:block;vertical-align:middle}
+img,video{max-width:100%;height:auto}
+a{color:inherit;text-decoration:inherit}
+table{border-collapse:collapse;text-indent:0;border-color:inherit}
+button,input,select,textarea{font-family:inherit;font-size:100%;color:inherit;margin:0;line-height:inherit}
+button{background:transparent;padding:0;cursor:pointer;-webkit-appearance:button;appearance:button;touch-action:manipulation}
+button,select{text-transform:none}
+textarea{resize:vertical}
+input::placeholder,textarea::placeholder{color:#8ea2a4;opacity:1}
+[hidden]{display:none}
+summary{cursor:pointer}
+pre{font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace}
+
+/* ---- Componentes do app (marcadores, sliders, switch) ---- */
     * { box-sizing: border-box; }
     :root {
-      --m4m-green: #0d9464;
-      --m4m-green-dark: #09754f;
-      --m4m-bg: #f3f5f4;
+      --m4m-green: #0d5c63;
+      --m4m-green-dark: #094a50;
+      --m4m-bg: #f7f3ec;
       --m4m-card: #ffffff;
-      --m4m-border: #e2e8f0;
-      --m4m-text: #1e293b;
-      --m4m-muted: #64748b;
+      --m4m-border: #e3dccd;
+      --m4m-text: #1a2e35;
+      --m4m-muted: #627a7e;
     }
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -60,9 +107,9 @@
       -webkit-appearance: none;
       appearance: none;
       width: 100%;
-      height: 8px;
+      height: 10px;
       border-radius: 999px;
-      background: #475569;
+      background: #a9c7c9;
       outline: none;
     }
     input[type="range"].m4m-slider::-webkit-slider-thumb {
@@ -71,8 +118,8 @@
       width: 22px;
       height: 22px;
       border-radius: 50%;
-      background: #ffffff;
-      border: 3px solid #0d9464;
+      background: #0d5c63;
+      border: 3px solid #ffffff;
       cursor: pointer;
       box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
     }
@@ -80,8 +127,8 @@
       width: 22px;
       height: 22px;
       border-radius: 50%;
-      background: #ffffff;
-      border: 3px solid #0d9464;
+      background: #0d5c63;
+      border: 3px solid #ffffff;
       cursor: pointer;
       box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
     }
@@ -94,10 +141,10 @@
       height: 28px;
       border-radius: 50%;
       background: #ffffff;
-      color: #0f172a;
+      color: #1a2e35;
       font-weight: 800;
       font-size: 12px;
-      border: 2.5px solid #0f172a;
+      border: 2.5px solid #1a2e35;
       box-shadow: 0 2px 6px rgba(0,0,0,0.45);
       cursor: grab;
     }
@@ -109,7 +156,7 @@
       font-weight: 700;
       font-size: 11px;
       color: #ffffff;
-      background: #0f172a;
+      background: #1a2e35;
       box-shadow: 0 2px 6px rgba(0,0,0,0.55);
       border: 2px solid #ffffff;
       transition: transform 0.15s ease;
@@ -154,10 +201,10 @@
       width: 34px;
       height: 34px;
       border-radius: 50%;
-      background: #0d9464;
+      background: #0d5c63;
       color: #ffffff;
       border: 2.5px solid #ffffff;
-      box-shadow: 0 0 14px rgba(13, 148, 100, 0.85);
+      box-shadow: 0 0 14px rgba(13, 92, 99, 0.85);
     }
     /* Toggle Switch */
     .m4m-switch {
@@ -192,12 +239,402 @@
       box-shadow: 0 1px 3px rgba(0,0,0,0.25);
     }
     .m4m-switch input:checked + .m4m-switch-slider {
-      background-color: #0d9464;
+      background-color: #0d5c63;
     }
     .m4m-switch input:checked + .m4m-switch-slider:before {
       transform: translateX(22px);
     }
+  
+
+/* ---- Utilitários (CSS puro) ---- */
+.pointer-events-none{pointer-events:none}
+.absolute{position:absolute}
+.fixed{position:fixed}
+.relative{position:relative}
+.sticky{position:sticky}
+.inset-0{inset:0;top:0;right:0;bottom:0;left:0}
+.-bottom-1\.5{bottom:-0.375rem}
+.-top-1{top:-0.25rem}
+.bottom-20{bottom:5rem}
+.bottom-3{bottom:0.75rem}
+.bottom-4{bottom:1rem}
+.left-1\/2{left:50%}
+.left-3{left:0.75rem}
+.left-4{left:1rem}
+.right-2{right:0.5rem}
+.right-3{right:0.75rem}
+.right-4{right:1rem}
+.top-0{top:0}
+.top-1\/2{top:50%}
+.top-3{top:0.75rem}
+.z-20{z-index:20}
+.z-30{z-index:30}
+.z-40{z-index:40}
+.z-50{z-index:50}
+.order-1{order:1}
+.order-2{order:2}
+.mx-auto{margin-left:auto;margin-right:auto}
+.mt-0\.5{margin-top:0.125rem}
+.mt-1{margin-top:0.25rem}
+.mt-1\.5{margin-top:0.375rem}
+.mb-0\.5{margin-bottom:0.125rem}
+.mb-1{margin-bottom:0.25rem}
+.mb-1\.5{margin-bottom:0.375rem}
+.mb-2{margin-bottom:0.5rem}
+.mb-3{margin-bottom:0.75rem}
+.block{display:block}
+.flex{display:flex}
+.grid{display:grid}
+.inline-flex{display:inline-flex}
+.hidden{display:none}
+.h-1{height:0.25rem}
+.h-10{height:2.5rem}
+.h-12{height:3rem}
+.h-14{height:3.5rem}
+.h-2\.5{height:0.625rem}
+.h-36{height:9rem}
+.h-4{height:1rem}
+.h-48{height:12rem}
+.h-5{height:1.25rem}
+.h-6{height:1.5rem}
+.h-7{height:1.75rem}
+.h-8{height:2rem}
+.h-9{height:2.25rem}
+.max-h-48{max-height:12rem}
+.max-h-64{max-height:16rem}
+.max-h-\[85vh\]{max-height:85vh}
+.max-h-\[88vh\]{max-height:88vh}
+.min-h-screen{min-height:100vh}
+.w-10{width:2.5rem}
+.w-12{width:3rem}
+.w-14{width:3.5rem}
+.w-2\.5{width:0.625rem}
+.w-3{width:0.75rem}
+.w-4{width:1rem}
+.w-48{width:12rem}
+.w-5{width:1.25rem}
+.w-6{width:1.5rem}
+.w-7{width:1.75rem}
+.w-8{width:2rem}
+.w-80{width:20rem}
+.w-9{width:2.25rem}
+.w-full{width:100%}
+.max-w-2xl{max-width:42rem}
+.max-w-4xl{max-width:56rem}
+.max-w-7xl{max-width:80rem}
+.max-w-\[80\%\]{max-width:80%}
+.flex-1{flex:1 1 0%}
+.shrink-0{flex-shrink:0}
+.-translate-x-1\/2{--tw-tx:-50%;transform:translate(var(--tw-tx,0),var(--tw-ty,0))}
+.-translate-y-1\/2{--tw-ty:-50%;transform:translate(var(--tw-tx,0),var(--tw-ty,0))}
+.cursor-grab{cursor:grab}
+.cursor-pointer{cursor:pointer}
+.list-decimal{list-style-type:decimal}
+.list-disc{list-style-type:disc}
+.list-inside{list-style-position:inside}
+.grid-cols-1{grid-template-columns:repeat(1,minmax(0,1fr))}
+.grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.flex-col{flex-direction:column}
+.flex-wrap{flex-wrap:wrap}
+.items-center{align-items:center}
+.items-end{align-items:flex-end}
+.items-start{align-items:flex-start}
+.justify-between{justify-content:space-between}
+.justify-center{justify-content:center}
+.justify-end{justify-content:flex-end}
+.gap-1{gap:0.25rem}
+.gap-1\.5{gap:0.375rem}
+.gap-2{gap:0.5rem}
+.gap-2\.5{gap:0.625rem}
+.gap-3{gap:0.75rem}
+.gap-4{gap:1rem}
+.space-y-0\.5>:not([hidden])~:not([hidden]){margin-top:0.125rem}
+.space-y-1>:not([hidden])~:not([hidden]){margin-top:0.25rem}
+.space-y-1\.5>:not([hidden])~:not([hidden]){margin-top:0.375rem}
+.space-y-2>:not([hidden])~:not([hidden]){margin-top:0.5rem}
+.space-y-2\.5>:not([hidden])~:not([hidden]){margin-top:0.625rem}
+.space-y-3>:not([hidden])~:not([hidden]){margin-top:0.75rem}
+.space-y-3\.5>:not([hidden])~:not([hidden]){margin-top:0.875rem}
+.space-y-4>:not([hidden])~:not([hidden]){margin-top:1rem}
+.space-y-6>:not([hidden])~:not([hidden]){margin-top:1.5rem}
+.divide-y>:not([hidden])~:not([hidden]){border-top-width:1px}
+.divide-slate-100>:not([hidden])~:not([hidden]){border-color:#f1ece1}
+.overflow-auto{overflow:auto}
+.overflow-hidden{overflow:hidden}
+.overflow-y-auto{overflow-y:auto}
+.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.break-all{word-break:break-all}
+.rounded{border-radius:.25rem}
+.rounded-2xl{border-radius:1rem}
+.rounded-full{border-radius:9999px}
+.rounded-lg{border-radius:.5rem}
+.rounded-md{border-radius:.375rem}
+.rounded-xl{border-radius:.75rem}
+.rounded-tl-sm{border-top-left-radius:.125rem}
+.rounded-tr-sm{border-top-right-radius:.125rem}
+.border{border-width:1px}
+.border-2{border-width:2px}
+.border-b{border-bottom-width:1px}
+.border-t{border-top-width:1px}
+.border-collapse{border-collapse:collapse}
+.border-\[\#0d5c63\]{border-color:#0d5c63}
+.border-\[\#b5d3d5\]{border-color:#b5d3d5}
+.border-\[\#fde68a\]{border-color:#fde68a}
+.border-\[\#feb2b2\]{border-color:#feb2b2}
+.border-amber-200{border-color:#fde68a}
+.border-cyan-500{border-color:#06b6d4}
+.border-emerald-200{border-color:#a6cdd0}
+.border-emerald-300{border-color:#7fb4b8}
+.border-emerald-400{border-color:#2f8087}
+.border-emerald-500\/40{border-color:rgba(13,92,99,0.4)}
+.border-emerald-500\/60{border-color:rgba(13,92,99,0.6)}
+.border-red-200{border-color:#fecaca}
+.border-slate-200{border-color:#e3dccd}
+.border-slate-200\/90{border-color:rgba(227,220,205,0.9)}
+.border-slate-300{border-color:#c9d3d1}
+.border-slate-700{border-color:#34494e}
+.border-slate-800{border-color:#1a2e35}
+.border-transparent{border-color:transparent}
+.border-white{border-color:#ffffff}
+.bg-\[\#0d5c63\]{background-color:#0d5c63}
+.bg-\[\#b9c8c6\]{background-color:#b9c8c6}
+.bg-\[\#e3eeee\]{background-color:#e3eeee}
+.bg-\[\#fbf8f2\]{background-color:#fbf8f2}
+.bg-\[\#fff5f5\]{background-color:#fff5f5}
+.bg-\[\#fffbeb\]{background-color:#fffbeb}
+.bg-amber-50{background-color:#fffbeb}
+.bg-amber-500{background-color:#f59e0b}
+.bg-cyan-400\/50{background-color:rgba(34,211,238,0.5)}
+.bg-emerald-100{background-color:#cfe6e7}
+.bg-emerald-400{background-color:#2f8087}
+.bg-emerald-50{background-color:#e6f2f2}
+.bg-emerald-500{background-color:#0d5c63}
+.bg-emerald-500\/20{background-color:rgba(13,92,99,0.2)}
+.bg-red-50{background-color:#fef2f2}
+.bg-red-600{background-color:#dc2626}
+.bg-slate-100{background-color:#f1ece1}
+.bg-slate-200{background-color:#e3dccd}
+.bg-slate-200\/50{background-color:rgba(227,220,205,0.5)}
+.bg-slate-200\/75{background-color:rgba(227,220,205,0.75)}
+.bg-slate-200\/80{background-color:rgba(227,220,205,0.8)}
+.bg-slate-200\/90{background-color:rgba(227,220,205,0.9)}
+.bg-slate-300\/80{background-color:rgba(201,211,209,0.8)}
+.bg-slate-400\/90{background-color:rgba(142,162,164,0.9)}
+.bg-slate-50{background-color:#faf7f1}
+.bg-slate-50\/70{background-color:rgba(250,247,241,0.7)}
+.bg-slate-700{background-color:#34494e}
+.bg-slate-800{background-color:#1a2e35}
+.bg-slate-800\/90{background-color:rgba(26,46,53,0.9)}
+.bg-slate-900{background-color:#12222a}
+.bg-slate-950{background-color:#0b161b}
+.bg-slate-950\/75{background-color:rgba(11,22,27,0.75)}
+.bg-white{background-color:#ffffff}
+.bg-white\/95{background-color:rgba(255,255,255,0.95)}
+.bg-gradient-to-r{background-image:linear-gradient(to right,var(--tw-gs))}
+.from-emerald-500{--tw-gf:#0d5c63;--tw-gs:var(--tw-gf),var(--tw-gt,transparent)}
+.via-amber-400{--tw-gs:var(--tw-gf),#fbbf24,var(--tw-gt,transparent)}
+.to-red-500{--tw-gt:#ef4444}
+.p-1{padding:0.25rem}
+.p-1\.5{padding:0.375rem}
+.p-2{padding:0.5rem}
+.p-2\.5{padding:0.625rem}
+.p-3{padding:0.75rem}
+.p-3\.5{padding:0.875rem}
+.p-4{padding:1rem}
+.p-5{padding:1.25rem}
+.px-1{padding-left:0.25rem;padding-right:0.25rem}
+.px-1\.5{padding-left:0.375rem;padding-right:0.375rem}
+.px-2{padding-left:0.5rem;padding-right:0.5rem}
+.px-2\.5{padding-left:0.625rem;padding-right:0.625rem}
+.px-3{padding-left:0.75rem;padding-right:0.75rem}
+.px-3\.5{padding-left:0.875rem;padding-right:0.875rem}
+.px-4{padding-left:1rem;padding-right:1rem}
+.px-5{padding-left:1.25rem;padding-right:1.25rem}
+.py-0\.2{padding-top:0.05rem;padding-bottom:0.05rem}
+.py-0\.5{padding-top:0.125rem;padding-bottom:0.125rem}
+.py-1{padding-top:0.25rem;padding-bottom:0.25rem}
+.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}
+.py-2{padding-top:0.5rem;padding-bottom:0.5rem}
+.py-2\.5{padding-top:0.625rem;padding-bottom:0.625rem}
+.py-3{padding-top:0.75rem;padding-bottom:0.75rem}
+.py-4{padding-top:1rem;padding-bottom:1rem}
+.pt-1{padding-top:0.25rem}
+.pt-2{padding-top:0.5rem}
+.pt-2\.5{padding-top:0.625rem}
+.pt-3{padding-top:0.75rem}
+.pt-4{padding-top:1rem}
+.pr-3{padding-right:0.75rem}
+.pb-10{padding-bottom:2.5rem}
+.pl-9{padding-left:2.25rem}
+.text-center{text-align:center}
+.text-left{text-align:left}
+.text-right{text-align:right}
+.font-bold{font-weight:700}
+.font-extrabold{font-weight:800}
+.font-medium{font-weight:500}
+.font-semibold{font-weight:600}
+.text-2xl{font-size:1.5rem;line-height:2rem}
+.text-base{font-size:1rem;line-height:1.5rem}
+.text-lg{font-size:1.125rem;line-height:1.75rem}
+.text-sm{font-size:.875rem;line-height:1.25rem}
+.text-xl{font-size:1.25rem;line-height:1.75rem}
+.text-xs{font-size:.75rem;line-height:1rem}
+.text-\[10px\]{font-size:10px}
+.text-\[11px\]{font-size:11px}
+.text-\[8px\]{font-size:8px}
+.leading-relaxed{line-height:1.625}
+.leading-snug{line-height:1.375}
+.leading-tight{line-height:1.25}
+.tracking-tight{letter-spacing:-.025em}
+.tracking-wider{letter-spacing:.05em}
+.uppercase{text-transform:uppercase}
+.text-\[\#0d5c63\]{color:#0d5c63}
+.text-\[\#92400e\]{color:#92400e}
+.text-\[\#92400e\]\/90{color:rgba(146,64,14,0.9)}
+.text-amber-400{color:#fbbf24}
+.text-amber-600{color:#d97706}
+.text-amber-700{color:#b45309}
+.text-amber-900{color:#78350f}
+.text-emerald-100{color:#cfe6e7}
+.text-emerald-300{color:#7fb4b8}
+.text-emerald-400{color:#2f8087}
+.text-emerald-700{color:#083b40}
+.text-orange-600{color:#ea580c}
+.text-red-600{color:#dc2626}
+.text-red-900{color:#7f1d1d}
+.text-sky-400{color:#38bdf8}
+.text-slate-100{color:#f1ece1}
+.text-slate-200{color:#e3dccd}
+.text-slate-300{color:#c9d3d1}
+.text-slate-400{color:#8ea2a4}
+.text-slate-500{color:#627a7e}
+.text-slate-600{color:#4a6165}
+.text-slate-700{color:#34494e}
+.text-slate-800{color:#1a2e35}
+.text-slate-900{color:#12222a}
+.text-white{color:#ffffff}
+.text-white\/90{color:rgba(255,255,255,0.9)}
+.italic{font-style:italic}
+.shadow{box-shadow:0 1px 3px 0 rgba(26,46,53,.12),0 1px 2px -1px rgba(26,46,53,.12)}
+.shadow-2xl{box-shadow:0 25px 50px -12px rgba(26,46,53,.4)}
+.shadow-inner{box-shadow:inset 0 2px 4px 0 rgba(26,46,53,.12)}
+.shadow-lg{box-shadow:0 10px 15px -3px rgba(26,46,53,.15),0 4px 6px -4px rgba(26,46,53,.1)}
+.shadow-md{box-shadow:0 4px 6px -1px rgba(26,46,53,.12),0 2px 4px -2px rgba(26,46,53,.1)}
+.shadow-sm{box-shadow:0 1px 2px 0 rgba(26,46,53,.07)}
+.shadow-xl{box-shadow:0 20px 25px -5px rgba(26,46,53,.18),0 8px 10px -6px rgba(26,46,53,.1)}
+.backdrop-blur{-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.backdrop-blur-sm{-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+.transition{transition-property:color,background-color,border-color,opacity,box-shadow,transform;transition-duration:.15s;transition-timing-function:cubic-bezier(.4,0,.2,1)}
+.group[open] .group-open\:rotate-180{transform:rotate(180deg)}
+.hover\:border-slate-200:hover{border-color:#e3dccd}
+.hover\:bg-\[\#094a50\]:hover{background-color:#094a50}
+.hover\:bg-emerald-100:hover{background-color:#cfe6e7}
+.hover\:bg-emerald-50:hover{background-color:#e6f2f2}
+.hover\:bg-red-50:hover{background-color:#fef2f2}
+.hover\:bg-red-700:hover{background-color:#b91c1c}
+.hover\:bg-slate-100:hover{background-color:#f1ece1}
+.hover\:bg-slate-200:hover{background-color:#e3dccd}
+.hover\:bg-slate-50:hover{background-color:#faf7f1}
+.hover\:bg-slate-500:hover{background-color:#627a7e}
+.hover\:bg-slate-700:hover{background-color:#34494e}
+.hover\:bg-slate-900:hover{background-color:#12222a}
+.hover\:bg-white:hover{background-color:#ffffff}
+.hover\:bg-white\/60:hover{background-color:rgba(255,255,255,0.6)}
+.hover\:text-red-700:hover{color:#b91c1c}
+.hover\:text-white:hover{color:#ffffff}
+.focus\:border-\[\#0d5c63\]:focus{border-color:#0d5c63}
+.focus\:outline-none:focus{outline:2px solid transparent;outline-offset:2px}
+@media (min-width:640px){.sm\:inline{display:inline}}
+@media (min-width:640px){.sm\:inline-flex{display:inline-flex}}
+@media (min-width:640px){.sm\:w-96{width:24rem}}
+@media (min-width:640px){.sm\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (min-width:640px){.sm\:grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media (min-width:640px){.sm\:p-6{padding:1.5rem}}
+@media (min-width:640px){.sm\:text-2xl{font-size:1.5rem;line-height:2rem}}
+@media (min-width:640px){.sm\:text-lg{font-size:1.125rem;line-height:1.75rem}}
+@media (min-width:640px){.sm\:text-sm{font-size:.875rem;line-height:1.25rem}}
+@media (min-width:640px){.sm\:text-xl{font-size:1.25rem;line-height:1.75rem}}
+@media (min-width:768px){.md\:inline-flex{display:inline-flex}}
+@media (min-width:768px){.md\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (min-width:768px){.md\:grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (min-width:1024px){.lg\:order-1{order:1}}
+@media (min-width:1024px){.lg\:order-2{order:2}}
+@media (min-width:1024px){.lg\:col-span-5{grid-column:span 5 / span 5}}
+@media (min-width:1024px){.lg\:col-span-7{grid-column:span 7 / span 7}}
+@media (min-width:1024px){.lg\:grid-cols-12{grid-template-columns:repeat(12,minmax(0,1fr))}}
+@media (min-width:1024px){.lg\:grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media (min-width:1024px){.lg\:grid-cols-8{grid-template-columns:repeat(8,minmax(0,1fr))}}
+@media (min-width:1280px){.xl\:col-span-5{grid-column:span 5 / span 5}}
+@media (min-width:1280px){.xl\:col-span-7{grid-column:span 7 / span 7}}
+
+/* ======================================================================
+   ZAVA MAPING — camada de identidade visual (turquesa / bege)
+   ====================================================================== */
+:root{--z-teal:#0d5c63;--z-teal-dark:#094a50;--z-beige:#f7f3ec;--z-ink:#1a2e35;--z-line:#e3dccd}
+html{background:var(--z-beige)}
+body{background:var(--z-beige);color:var(--z-ink);min-height:100vh;min-height:100dvh;-webkit-font-smoothing:antialiased}
+/* Header estilo app */
+header.sticky{background:rgba(255,255,255,.96);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  padding-top:max(.75rem,env(safe-area-inset-top));padding-left:max(1rem,env(safe-area-inset-left));padding-right:max(1rem,env(safe-area-inset-right));border-bottom:1px solid var(--z-line)}
+/* Cards brancos arredondados */
+main section.bg-white,main div.bg-white.rounded-2xl,main .rounded-2xl.bg-white{border-color:var(--z-line);box-shadow:0 1px 2px rgba(26,46,53,.05),0 4px 14px rgba(26,46,53,.05)}
+main{padding-left:max(.75rem,env(safe-area-inset-left));padding-right:max(.75rem,env(safe-area-inset-right));padding-bottom:calc(6rem + env(safe-area-inset-bottom))}
+/* KPIs */
+.grid .bg-\[\#fbf8f2\]{border:1px solid var(--z-line);box-shadow:0 1px 2px rgba(26,46,53,.04);min-height:4.25rem}
+/* Abas de modo */
+.mode-tab-btn{min-height:2.5rem;-webkit-user-select:none;user-select:none;white-space:nowrap}
+.mode-tab-btn.bg-white{color:var(--z-teal);box-shadow:0 1px 3px rgba(26,46,53,.25)}
+/* Campos */
+select{-webkit-appearance:none;appearance:none;padding-right:2rem!important;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%230d5c63' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right .6rem center;background-size:1rem}
+input[type=text],input[type=number],select{min-height:2.5rem}
+input[type=checkbox]{accent-color:var(--z-teal);width:1.1rem;height:1.1rem}
+input:focus,select:focus,textarea:focus{border-color:var(--z-teal)!important;box-shadow:0 0 0 3px rgba(13,92,99,.15);outline:none}
+button:focus-visible,summary:focus-visible{outline:2px solid var(--z-teal);outline-offset:2px}
+input[type=range].m4m-slider{touch-action:pan-y;height:10px;margin:.5rem 0}
+input[type=range].m4m-slider::-webkit-slider-thumb{width:26px;height:26px}
+input[type=range].m4m-slider::-moz-range-thumb{width:26px;height:26px}
+button:active{transform:scale(.98)}
+/* Mapa */
+#map{height:56vh;min-height:360px;max-height:560px;border-radius:0}
+.leaflet-container{touch-action:none}
+table th,table td{white-space:nowrap}
+/* Tabela de waypoints com rolagem lateral no celular */
+#waypointTableBody{font-size:.75rem}
+.overflow-auto{-webkit-overflow-scrolling:touch}
+/* Widgets flutuantes / toast respeitam a safe-area do iPhone */
+#floatingWidgetsContainer{bottom:calc(1rem + env(safe-area-inset-bottom));right:max(1rem,env(safe-area-inset-right))}
+#aiAssistantDrawer{bottom:calc(5rem + env(safe-area-inset-bottom));max-width:calc(100vw - 2rem)}
+#toastContainer{bottom:calc(1rem + env(safe-area-inset-bottom))}
+#facadeManualModal>div,#previewModal>div{max-height:88vh;max-height:88dvh}
+/* Mobile: empilha tudo em coluna única, mapa primeiro, painéis depois */
+@media (max-width:1023px){
+  body>main>div.grid{display:flex;flex-direction:column;gap:1rem}
+  body>main>div.grid>section{width:100%}
+}
+@media (max-width:639px){
+  /* 16px evita o zoom automático do Safari no iPhone ao focar em campos */
+  input[type=text],input[type=number],select,textarea{font-size:16px!important}
+  #map{height:52vh;min-height:340px}
+}
+/* Desktop: painéis à esquerda, mapa fixo à direita */
+@media (min-width:1024px){
+  #map{height:min(72vh,680px)}
+}
+@media (max-width:479px){
+  #btnDownloadSelfHtml,#btnOpenPreviewModal{display:none}
+}
+header .text-lg{white-space:nowrap}
+@media (max-width:430px){
+  .mode-tab-btn{font-size:11px!important;gap:.2rem!important;padding-left:.2rem!important;padding-right:.2rem!important}
+  .mode-tab-btn .truncate{overflow:visible;text-overflow:clip}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
   </style>
+
 </head>
 <body class="min-h-screen flex flex-col">
 
@@ -207,8 +644,8 @@
   <header class="bg-white border-b border-slate-200 px-4 py-3 sticky top-0 z-30 shadow-sm">
     <div class="max-w-7xl mx-auto flex items-center justify-between gap-3">
       <div class="flex items-center gap-2.5">
-        <!-- Pin Verde Maps4meConnect -->
-        <div class="w-10 h-10 rounded-xl bg-[#0d9464] flex items-center justify-center text-white shadow-sm">
+        <!-- Pin ZAVA MAPING -->
+        <div class="w-10 h-10 rounded-xl bg-[#0d5c63] flex items-center justify-center text-white shadow-sm">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -216,8 +653,8 @@
         </div>
         <div>
           <div class="flex items-center gap-2">
-            <span class="text-lg sm:text-xl font-extrabold tracking-tight text-slate-800">Maps4me<span class="text-[#0d9464]">Connect</span></span>
-            <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-[#0d9464] border border-emerald-200">
+            <span class="text-lg sm:text-xl font-extrabold tracking-tight text-slate-800">ZAVA<span class="text-[#0d5c63]"> MAPING</span></span>
+            <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-[#0d5c63] border border-emerald-200">
               v3 • WPML 1.0.2 Auditado
             </span>
           </div>
@@ -230,11 +667,11 @@
           class="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 transition"
           title="Ativar/Desativar elementos comerciais do site original (Contador de exportações, CTA planos, Botões flutuantes)">
           <span>UI Comercial:</span>
-          <strong id="commercialFlagLabel" class="text-[#0d9464]">ON</strong>
+          <strong id="commercialFlagLabel" class="text-[#0d5c63]">ON</strong>
         </button>
 
         <button id="btnDownloadSelfHtml" type="button"
-          class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold bg-[#0d9464] hover:bg-[#09754f] text-white shadow-sm transition"
+          class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold bg-[#0d5c63] hover:bg-[#094a50] text-white shadow-sm transition"
           title="Baixar o código-fonte completo deste arquivo gerador_waypoints_kmz_v3.html">
           <span>⬇️ Baixar .HTML (v3)</span>
         </button>
@@ -257,7 +694,7 @@
 
   <!-- Banner Opcional: Contador de Exportações Restantes (PDF Pág. 42 - Feature Flag) -->
   <div id="trialCounterBanner" class="max-w-7xl w-full mx-auto px-3 pt-2.5">
-    <div class="bg-[#e6f4ee] border border-[#b7e2ce] rounded-xl px-3.5 py-2 flex items-center justify-between">
+    <div class="bg-[#e3eeee] border border-[#b5d3d5] rounded-xl px-3.5 py-2 flex items-center justify-between">
       <span id="trialCounterPill" class="inline-flex items-center px-3 py-0.5 rounded-full text-xs font-bold bg-slate-700 text-white">
         1 exportação(ões) restante(s) • Modo Pessoal Ilimitado Ativo (∞)
       </span>
@@ -273,7 +710,7 @@
     <!-- Título Hero + 8 Cartões de Estatísticas em Tempo Real (PDF Págs. 1 e 42) -->
     <section class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
       <div class="flex items-start gap-3 mb-3">
-        <div class="mt-1 text-[#0d9464]">
+        <div class="mt-1 text-[#0d5c63]">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
           </svg>
@@ -287,24 +724,24 @@
       <!-- 8 Cartões de Estatísticas (Ordem Exata Pág. 1 e Pág. 42) -->
       <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5">
         <!-- 1. Waypoints -->
-        <div class="bg-[#f8faf9] border border-slate-200/90 rounded-xl p-3">
+        <div class="bg-[#fbf8f2] border border-slate-200/90 rounded-xl p-3">
           <div class="text-xs text-slate-500 font-medium">Waypoints</div>
           <div id="kpiWaypoints" class="text-xl font-extrabold font-mono-num text-slate-900 mt-0.5">0</div>
           <div id="kpiTerrainBadge" class="text-[11px] font-semibold text-orange-600 mt-0.5 hidden">+0 terrain</div>
         </div>
         <!-- 2. Distância -->
-        <div class="bg-[#f8faf9] border border-slate-200/90 rounded-xl p-3">
+        <div class="bg-[#fbf8f2] border border-slate-200/90 rounded-xl p-3">
           <div class="text-xs text-slate-500 font-medium">Distância</div>
           <div id="kpiDistance" class="text-xl font-extrabold font-mono-num text-slate-900 mt-0.5">—</div>
           <div id="kpiGsdSub" class="text-[10px] text-slate-500 font-mono-num mt-0.5">GSD: —</div>
         </div>
         <!-- 3. Tempo est. -->
-        <div class="bg-[#f8faf9] border border-slate-200/90 rounded-xl p-3">
+        <div class="bg-[#fbf8f2] border border-slate-200/90 rounded-xl p-3">
           <div class="text-xs text-slate-500 font-medium">Tempo est.</div>
           <div id="kpiDuration" class="text-lg sm:text-xl font-extrabold font-mono-num text-slate-900 mt-0.5">—</div>
         </div>
         <!-- 4. Baterias -->
-        <div class="bg-[#f8faf9] border border-slate-200/90 rounded-xl p-3">
+        <div class="bg-[#fbf8f2] border border-slate-200/90 rounded-xl p-3">
           <div class="text-xs text-slate-500 font-medium flex items-center gap-1">
             <span>🔋</span><span>Baterias</span>
           </div>
@@ -312,7 +749,7 @@
           <div id="kpiBatterySub" class="text-[10px] text-slate-500 mt-0.5">~28min/bat (DJI Air 3)</div>
         </div>
         <!-- 5. Imagens est. (3s e 5s) -->
-        <div class="bg-[#f8faf9] border border-slate-200/90 rounded-xl p-3">
+        <div class="bg-[#fbf8f2] border border-slate-200/90 rounded-xl p-3">
           <div class="text-xs text-slate-500 font-medium">Imagens est.</div>
           <div class="text-xs font-mono-num text-slate-700 mt-1 space-y-0.5">
             <div>3s: <strong id="kpiPhotos3s" class="text-slate-900 font-bold">—</strong></div>
@@ -320,17 +757,17 @@
           </div>
         </div>
         <!-- 6. Área -->
-        <div class="bg-[#f8faf9] border border-slate-200/90 rounded-xl p-3">
+        <div class="bg-[#fbf8f2] border border-slate-200/90 rounded-xl p-3">
           <div class="text-xs text-slate-500 font-medium">Área</div>
           <div id="kpiArea" class="text-xl font-extrabold font-mono-num text-slate-900 mt-0.5">—</div>
         </div>
         <!-- 7. Altitude -->
-        <div class="bg-[#f8faf9] border border-slate-200/90 rounded-xl p-3">
+        <div class="bg-[#fbf8f2] border border-slate-200/90 rounded-xl p-3">
           <div class="text-xs text-slate-500 font-medium">Altitude</div>
           <div id="kpiAltitude" class="text-xl font-extrabold font-mono-num text-slate-900 mt-0.5">100m</div>
         </div>
         <!-- 8. Velocidade -->
-        <div class="bg-[#f8faf9] border border-slate-200/90 rounded-xl p-3">
+        <div class="bg-[#fbf8f2] border border-slate-200/90 rounded-xl p-3">
           <div class="text-xs text-slate-500 font-medium">Velocidade</div>
           <div id="kpiSpeed" class="text-xl font-extrabold font-mono-num text-slate-900 mt-0.5">8m/s</div>
         </div>
@@ -352,10 +789,10 @@
             </span>
             <input id="searchPlaceInput" type="text"
               placeholder="Buscar cidade, endereço ou lat,lng (ex: Goiânia)..."
-              class="w-full bg-white border border-slate-300 rounded-xl pl-9 pr-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-[#0d9464] shadow-sm" />
+              class="w-full bg-white border border-slate-300 rounded-xl pl-9 pr-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-[#0d5c63] shadow-sm" />
           </div>
           <button id="btnSearchPlace" type="button"
-            class="px-5 py-2.5 rounded-xl bg-[#0d9464] hover:bg-[#09754f] text-white text-sm font-bold shadow-sm transition">
+            class="px-5 py-2.5 rounded-xl bg-[#0d5c63] hover:bg-[#094a50] text-white text-sm font-bold shadow-sm transition">
             Buscar
           </button>
           <button id="btnGenerateDemoShape" type="button"
@@ -390,7 +827,7 @@
           <!-- Legenda Flutuante Inferior Esquerda: Elevação do Terreno (PDF Págs. 41, 45, 48, 50, 52) -->
           <div id="mapElevationLegend" class="absolute bottom-3 left-3 z-20 bg-white/95 backdrop-blur border border-slate-200 rounded-xl p-2.5 shadow-lg w-48 pointer-events-none">
             <div class="flex items-center gap-1.5 text-xs font-bold text-slate-800 mb-1.5">
-              <span class="text-[#0d9464]">⛰️</span>
+              <span class="text-[#0d5c63]">⛰️</span>
               <span>Elevação do terreno</span>
             </div>
             <div class="h-2.5 w-full rounded-full bg-gradient-to-r from-emerald-500 via-amber-400 to-red-500"></div>
@@ -407,7 +844,7 @@
           <div class="bg-slate-900 text-slate-100 px-3 py-2 flex flex-wrap items-center justify-between gap-2 text-xs">
             <div class="flex items-center gap-2">
               <button id="btnSimulateToggle" type="button"
-                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#0d9464] hover:bg-[#09754f] text-white transition">
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#0d5c63] hover:bg-[#094a50] text-white transition">
                 <span id="simBtnText">▶ Simular Voo</span>
               </button>
               <button id="btnSimulateStop" type="button"
@@ -451,7 +888,7 @@
         <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
           <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
             <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Perfil Altimétrico (Elevação SRTM vs. Altitude de Voo)</h3>
-            <span id="elevationDiffBadge" class="text-xs font-mono-num px-2.5 py-0.5 rounded-full bg-emerald-50 text-[#0d9464] font-semibold border border-emerald-200">
+            <span id="elevationDiffBadge" class="text-xs font-mono-num px-2.5 py-0.5 rounded-full bg-emerald-50 text-[#0d5c63] font-semibold border border-emerald-200">
               Desnível solo: 0 m
             </span>
           </div>
@@ -467,7 +904,7 @@
         <!-- =============================================================== -->
         <!-- 2. ABAS DE MODO (6 Modos + Badges NOVO - PDF Págs. 3, 14, 21)   -->
         <!-- =============================================================== -->
-        <div class="bg-[#a8aba9] p-1.5 rounded-2xl shadow-inner">
+        <div class="bg-[#b9c8c6] p-1.5 rounded-2xl shadow-inner">
           <div class="grid grid-cols-4 gap-1 mb-1">
             <!-- Aba 1: Waypoints -->
             <button type="button" data-mode="manual"
@@ -522,7 +959,7 @@
           <div>
             <label for="droneModelSelect" class="block text-xs font-medium text-slate-600 mb-1">Modelo do Drone</label>
             <!-- Ordem exata das 10 opções do PDF (Pág. 4) + modelos adicionais v2 -->
-            <select id="droneModelSelect" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-[#0d9464]">
+            <select id="droneModelSelect" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-[#0d5c63]">
               <option value="air3" selected>DJI Air 3</option>
               <option value="air3s">DJI Air 3S</option>
               <option value="mini5pro">DJI Mini 5 Pro</option>
@@ -542,7 +979,7 @@
 
           <div>
             <label for="cameraModelSelect" class="block text-xs font-medium text-slate-600 mb-1">Câmera</label>
-            <select id="cameraModelSelect" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-[#0d9464]">
+            <select id="cameraModelSelect" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-[#0d5c63]">
               <!-- Populado dinamicamente de acordo com o drone selecionado -->
             </select>
           </div>
@@ -585,7 +1022,7 @@
           <!-- Sub-abas: Desenhar no mapa | Por coordenadas -->
           <div class="grid grid-cols-2 gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
             <button id="btnFacadeTabDraw" type="button"
-              class="py-2 px-2 rounded-lg text-xs font-bold transition bg-[#0d9464] text-white shadow-sm">
+              class="py-2 px-2 rounded-lg text-xs font-bold transition bg-[#0d5c63] text-white shadow-sm">
               ✏️ Desenhar no mapa
             </button>
             <button id="btnFacadeTabCoords" type="button"
@@ -657,7 +1094,7 @@
             <p class="text-[11px] text-slate-500">Aceita decimal (-24.633820), GMS (24° 38' 01,75" S) ou UTM em metros.</p>
 
             <button id="btnApplyFacadeCoords" type="button"
-              class="w-full py-2.5 px-4 rounded-xl bg-[#0d9464] hover:bg-[#09754f] text-white text-xs font-bold shadow-sm transition">
+              class="w-full py-2.5 px-4 rounded-xl bg-[#0d5c63] hover:bg-[#094a50] text-white text-xs font-bold shadow-sm transition">
               Aplicar coordenadas
             </button>
           </div>
@@ -688,7 +1125,7 @@
                 ⇄ Inverter lado da fachada
               </button>
               <label class="inline-flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
-                <input id="chkFacadeExtendLines" type="checkbox" checked class="rounded text-[#0d9464]" />
+                <input id="chkFacadeExtendLines" type="checkbox" checked class="rounded text-[#0d5c63]" />
                 <span>Estender linhas (+2m anti-deriva)</span>
               </label>
             </div>
@@ -705,7 +1142,7 @@
           <!-- CONTROLE ESPECÍFICO OBLÍQUO: Nível de Captura (PDF Págs. 21-23) -->
           <div id="obliqueCaptureLevelBox" class="space-y-1.5 hidden">
             <label for="obliqueCaptureLevelSelect" class="block text-xs font-semibold text-slate-700">Nível de captura</label>
-            <select id="obliqueCaptureLevelSelect" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-800 focus:outline-none focus:border-[#0d9464]">
+            <select id="obliqueCaptureLevelSelect" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-800 focus:outline-none focus:border-[#0d5c63]">
               <option value="economico">Econômico — nadir + 2 oblíquas (3 passadas)</option>
               <option value="padrao" selected>Padrão — nadir + 4 oblíquas (5 passadas)</option>
               <option value="completo">Completo — nadir duplo + 4 oblíquas (6 passadas)</option>
@@ -810,7 +1247,7 @@
 
           <!-- Configurações Avançadas DJI WPML 1.0.2 (Preserva 100% dos controles do v2 + FIX #2 e FIX #4) -->
           <details class="pt-2 border-t border-slate-200 group">
-            <summary class="text-xs font-bold text-[#0d9464] cursor-pointer flex items-center justify-between py-1">
+            <summary class="text-xs font-bold text-[#0d5c63] cursor-pointer flex items-center justify-between py-1">
               <span>⚙️ Opções Avançadas WPML 1.0.2 (Altitude, Curva, Yaw, Ação)</span>
               <span class="group-open:rotate-180 transition">⌄</span>
             </summary>
@@ -873,7 +1310,7 @@
               </div>
               <div class="flex items-center pt-4">
                 <label class="inline-flex items-center gap-2 cursor-pointer text-[11px] text-slate-700">
-                  <input id="chkWaypointsEveryPhoto" type="checkbox" class="rounded text-[#0d9464]" />
+                  <input id="chkWaypointsEveryPhoto" type="checkbox" class="rounded text-[#0d5c63]" />
                   <span>Criar WP em cada foto</span>
                 </label>
               </div>
@@ -901,7 +1338,7 @@
               <span>Definir POI no mapa</span>
             </button>
             <button id="btnGenerateOrbitPOI" type="button"
-              class="w-full py-2.5 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-[#0d9464] border border-emerald-200 text-xs font-bold flex items-center justify-center gap-1.5 transition">
+              class="w-full py-2.5 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-[#0d5c63] border border-emerald-200 text-xs font-bold flex items-center justify-center gap-1.5 transition">
               <span>🔄</span>
               <span>Gerar Órbita no POI</span>
             </button>
@@ -933,7 +1370,7 @@
           <div class="flex items-center justify-between gap-2">
             <div>
               <div class="flex items-center gap-1.5">
-                <span class="text-[#0d9464]">⛰️</span>
+                <span class="text-[#0d5c63]">⛰️</span>
                 <h2 class="text-sm font-bold text-slate-800">Acompanhamento de Terreno</h2>
               </div>
               <div class="text-xs font-semibold text-slate-700 mt-1">Terrain Follow (SRTM)</div>
@@ -974,10 +1411,10 @@
             </div>
 
             <!-- Contador ao vivo de pontos de terreno (PDF Págs. 44 e 47) -->
-            <div id="terrainLiveCounterBox" class="p-2.5 rounded-xl bg-[#e6f4ee] border border-[#b7e2ce] text-xs text-slate-800 flex items-center justify-between">
+            <div id="terrainLiveCounterBox" class="p-2.5 rounded-xl bg-[#e3eeee] border border-[#b5d3d5] text-xs text-slate-800 flex items-center justify-between">
               <span id="terrainLiveCounterText">📍 Plano de voo: <strong>13</strong> pontos de terreno</span>
               <button id="btnFetchTerrain" type="button"
-                class="px-2.5 py-1 rounded-lg bg-[#0d9464] hover:bg-[#09754f] text-white text-[11px] font-bold transition">
+                class="px-2.5 py-1 rounded-lg bg-[#0d5c63] hover:bg-[#094a50] text-white text-[11px] font-bold transition">
                 Recalcular SRTM
               </button>
             </div>
@@ -996,7 +1433,7 @@
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
               <h2 class="text-xs font-bold uppercase tracking-wider text-slate-600">Tabela de Waypoints</h2>
-              <span id="wpCountPill" class="px-2 py-0.5 rounded-full text-[11px] font-mono-num font-bold bg-emerald-50 text-[#0d9464] border border-emerald-200">0 WPs</span>
+              <span id="wpCountPill" class="px-2 py-0.5 rounded-full text-[11px] font-mono-num font-bold bg-emerald-50 text-[#0d5c63] border border-emerald-200">0 WPs</span>
             </div>
             <button id="btnReverseWaypoints" type="button"
               class="text-xs px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold border border-slate-300 transition">
@@ -1007,7 +1444,7 @@
           <!-- Editor do Waypoint Selecionado (Inclui #customAngleInput do FIX #4) -->
           <div id="selectedWpEditor" class="p-3 rounded-xl bg-slate-50 border border-emerald-300 space-y-2 hidden">
             <div class="flex items-center justify-between">
-              <span id="selectedWpTitle" class="text-xs font-bold text-[#0d9464]">Editando Waypoint #1</span>
+              <span id="selectedWpTitle" class="text-xs font-bold text-[#0d5c63]">Editando Waypoint #1</span>
               <button id="btnDeleteSelectedWp" type="button" class="text-xs text-red-600 hover:text-red-700 font-semibold">
                 Excluir Ponto
               </button>
@@ -1038,7 +1475,7 @@
             </div>
             <!-- FIX #4: Campo numérico #customAngleInput (-180° a 180°), visível apenas quando smoothTransition estiver ativo -->
             <div id="customAngleContainer" class="pt-2 border-t border-slate-200 hidden">
-              <label for="customAngleInput" class="block text-[10px] text-[#0d9464] font-bold mb-1">
+              <label for="customAngleInput" class="block text-[10px] text-[#0d5c63] font-bold mb-1">
                 Ângulo Customizado do WP (Azimute / Yaw: -180° a 180°)
               </label>
               <input id="customAngleInput" type="number" min="-180" max="180" step="1" placeholder="Auto (Direção da Rota)"
@@ -1088,12 +1525,12 @@
           <div>
             <label for="missionNameInput" class="block text-xs font-medium text-slate-600 mb-1">Nome da missão</label>
             <input id="missionNameInput" type="text" value="Missao_DJI"
-              class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-[#0d9464]" />
+              class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-[#0d5c63]" />
           </div>
 
           <div class="grid grid-cols-2 gap-2">
             <button id="btnExportKMZ" type="button"
-              class="py-2.5 px-3 rounded-xl bg-[#0d9464] hover:bg-[#09754f] text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 shadow-sm transition">
+              class="py-2.5 px-3 rounded-xl bg-[#0d5c63] hover:bg-[#094a50] text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 shadow-sm transition">
               <span>⬇️</span>
               <span>DJI Fly (.kmz)</span>
             </button>
@@ -1248,12 +1685,12 @@
   <!-- ===================================================================== -->
   <div id="floatingWidgetsContainer" class="fixed bottom-4 right-4 z-40 flex items-center gap-2.5">
     <button id="btnFloatingChat" type="button" title="Enviar Feedback / Chat"
-      class="w-12 h-12 rounded-full bg-[#0d9464] hover:bg-[#09754f] text-white flex items-center justify-center shadow-xl transition">
+      class="w-12 h-12 rounded-full bg-[#0d5c63] hover:bg-[#094a50] text-white flex items-center justify-center shadow-xl transition">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
       </svg>
     </button>
-    <button id="btnFloatingAI" type="button" title="Assistente IA Maps4me"
+    <button id="btnFloatingAI" type="button" title="Assistente IA ZAVA"
       class="w-14 h-14 rounded-full bg-slate-400/90 hover:bg-slate-500 text-white flex items-center justify-center shadow-xl border-2 border-white transition text-2xl">
       🤖
     </button>
@@ -1261,11 +1698,11 @@
 
   <!-- Modal / Drawer do Assistente IA Maps4me (PDF Pág. 51) -->
   <div id="aiAssistantDrawer" class="fixed bottom-20 right-4 z-50 w-80 sm:w-96 bg-white border border-slate-300 rounded-2xl shadow-2xl overflow-hidden hidden">
-    <div class="bg-[#0d9464] text-white px-4 py-3 flex items-center justify-between">
+    <div class="bg-[#0d5c63] text-white px-4 py-3 flex items-center justify-between">
       <div class="flex items-center gap-2.5">
         <span class="text-2xl">🤖</span>
         <div>
-          <div class="text-sm font-bold leading-tight">Assistente IA Maps4me</div>
+          <div class="text-sm font-bold leading-tight">Assistente IA ZAVA</div>
           <div class="text-[11px] text-emerald-100">Respostas automáticas • Inteligência Artificial</div>
         </div>
       </div>
@@ -1273,16 +1710,16 @@
     </div>
     <div id="aiChatMessages" class="p-4 max-h-64 overflow-y-auto space-y-3 bg-slate-50 text-xs">
       <div class="flex items-start gap-2">
-        <span class="w-7 h-7 rounded-full bg-emerald-100 text-[#0d9464] flex items-center justify-center shrink-0 font-bold">🤖</span>
+        <span class="w-7 h-7 rounded-full bg-emerald-100 text-[#0d5c63] flex items-center justify-center shrink-0 font-bold">🤖</span>
         <div class="bg-slate-200/90 text-slate-800 rounded-2xl rounded-tl-sm px-3.5 py-2.5 leading-relaxed">
-          Olá! 👋 Sou a assistente virtual da Maps4meConnect, um atendimento automatizado por inteligência artificial. Como posso te ajudar hoje?
+          Olá! 👋 Sou a assistente virtual da ZAVA MAPING, um atendimento automatizado por inteligência artificial. Como posso te ajudar hoje?
         </div>
       </div>
     </div>
     <div class="p-2.5 bg-white border-t border-slate-200 flex items-center gap-2">
       <input id="aiChatInput" type="text" placeholder="Pergunte sobre GSD, terreno, fachada..."
-        class="flex-1 bg-slate-100 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-[#0d9464]" />
-      <button id="btnSendAiChat" type="button" class="px-3 py-2 rounded-xl bg-[#0d9464] text-white text-xs font-bold">Enviar</button>
+        class="flex-1 bg-slate-100 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-[#0d5c63]" />
+      <button id="btnSendAiChat" type="button" class="px-3 py-2 rounded-xl bg-[#0d5c63] text-white text-xs font-bold">Enviar</button>
     </div>
   </div>
 
@@ -1300,7 +1737,7 @@
           <p class="text-xs text-slate-500 mt-0.5">Guia completo para mapear fachadas verticais com drones sem RTK.</p>
         </div>
         <button id="btnCloseFacadeManual" type="button"
-          class="w-8 h-8 rounded-full border border-[#0d9464] text-[#0d9464] hover:bg-emerald-50 flex items-center justify-center font-bold text-sm">✕</button>
+          class="w-8 h-8 rounded-full border border-[#0d5c63] text-[#0d5c63] hover:bg-emerald-50 flex items-center justify-center font-bold text-sm">✕</button>
       </div>
 
       <div class="p-5 overflow-y-auto space-y-6 text-xs sm:text-sm text-slate-700 leading-relaxed">
@@ -1319,7 +1756,7 @@
           <!-- Diagrama Ilustrativo 1 (Pág. 28) -->
           <div class="bg-slate-200/80 rounded-xl p-3 text-center">
             <div class="text-[11px] font-bold text-slate-700 mb-1">Voo paralelo à fachada em zigue-zague (cada ponto = uma foto)</div>
-            <div class="font-mono-num text-[11px] text-[#0d9464]">Drone ✈️ ──► [ Camadas Horizontais Empilhadas ] ──► Parede / Edifício 🏢</div>
+            <div class="font-mono-num text-[11px] text-[#0d5c63]">Drone ✈️ ──► [ Camadas Horizontais Empilhadas ] ──► Parede / Edifício 🏢</div>
           </div>
         </div>
 
@@ -2708,7 +3145,7 @@
             const dot = L.circleMarker([wp.lat, wp.lng], {
               radius: 4.5,
               fillColor: cHex,
-              color: '#0f172a',
+              color: '#1a2e35',
               weight: 1,
               fillOpacity: 0.95
             }).addTo(layerGroupWaypoints);
@@ -2719,7 +3156,7 @@
 
           const isSelected = idx === state.selectedWpIndex;
           const size = isSelected ? 26 : 22;
-          const bg = isSelected ? '#0d9464' : '#0f172a';
+          const bg = isSelected ? '#0d5c63' : '#1a2e35';
 
           const marker = L.marker([wp.lat, wp.lng], {
             draggable: state.mode === 'manual',
@@ -2794,7 +3231,7 @@
         tr.setAttribute('data-wp-idx', String(idx));
 
         const tdIdx = document.createElement('td');
-        tdIdx.className = 'py-1.5 px-2 font-bold text-[#0d9464]';
+        tdIdx.className = 'py-1.5 px-2 font-bold text-[#0d5c63]';
         tdIdx.textContent = String(idx + 1);
 
         const tdCoords = document.createElement('td');
@@ -2987,8 +3424,8 @@
             {
               label: 'Altitude Voo ASL (m)',
               data: droneAslData,
-              borderColor: '#0d9464',
-              backgroundColor: 'rgba(13, 148, 100, 0.1)',
+              borderColor: '#0d5c63',
+              backgroundColor: 'rgba(13, 92, 99, 0.1)',
               borderWidth: 2.2,
               tension: 0.25,
               fill: false,
@@ -4073,14 +4510,14 @@
       document.getElementById('btnFacadeTabDraw').addEventListener('click', () => {
         document.getElementById('facadeSubDrawPanel').classList.remove('hidden');
         document.getElementById('facadeSubCoordsPanel').classList.add('hidden');
-        document.getElementById('btnFacadeTabDraw').className = 'py-2 px-2 rounded-lg text-xs font-bold transition bg-[#0d9464] text-white shadow-sm';
+        document.getElementById('btnFacadeTabDraw').className = 'py-2 px-2 rounded-lg text-xs font-bold transition bg-[#0d5c63] text-white shadow-sm';
         document.getElementById('btnFacadeTabCoords').className = 'py-2 px-2 rounded-lg text-xs font-semibold transition text-slate-700 hover:bg-white';
       });
 
       document.getElementById('btnFacadeTabCoords').addEventListener('click', () => {
         document.getElementById('facadeSubDrawPanel').classList.add('hidden');
         document.getElementById('facadeSubCoordsPanel').classList.remove('hidden');
-        document.getElementById('btnFacadeTabCoords').className = 'py-2 px-2 rounded-lg text-xs font-bold transition bg-[#0d9464] text-white shadow-sm';
+        document.getElementById('btnFacadeTabCoords').className = 'py-2 px-2 rounded-lg text-xs font-bold transition bg-[#0d5c63] text-white shadow-sm';
         document.getElementById('btnFacadeTabDraw').className = 'py-2 px-2 rounded-lg text-xs font-semibold transition text-slate-700 hover:bg-white';
       });
 
@@ -4392,7 +4829,7 @@
         const userWrap = document.createElement('div');
         userWrap.className = 'flex justify-end';
         const userBubble = document.createElement('div');
-        userBubble.className = 'bg-[#0d9464] text-white rounded-2xl rounded-tr-sm px-3.5 py-2 max-w-[80%]';
+        userBubble.className = 'bg-[#0d5c63] text-white rounded-2xl rounded-tr-sm px-3.5 py-2 max-w-[80%]';
         userBubble.textContent = msg;
         userWrap.appendChild(userBubble);
         box.appendChild(userWrap);
@@ -4401,7 +4838,7 @@
         const botWrap = document.createElement('div');
         botWrap.className = 'flex items-start gap-2';
         const botAvatar = document.createElement('span');
-        botAvatar.className = 'w-7 h-7 rounded-full bg-emerald-100 text-[#0d9464] flex items-center justify-center shrink-0 font-bold';
+        botAvatar.className = 'w-7 h-7 rounded-full bg-emerald-100 text-[#0d5c63] flex items-center justify-center shrink-0 font-bold';
         botAvatar.textContent = '🤖';
         const botBubble = document.createElement('div');
         botBubble.className = 'bg-slate-200/90 text-slate-800 rounded-2xl rounded-tl-sm px-3.5 py-2.5 leading-relaxed';
