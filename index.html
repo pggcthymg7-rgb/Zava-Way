@@ -669,6 +669,16 @@ div:has(>table){overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch}
 
 /* Caminhos de arquivo longos quebram linha em vez de alargar a tela */
 main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
+
+/* Legenda de elevação fica DENTRO do mapa, acima da atribuição, sem cobrir a barra de simulação */
+.zava-mapbox{position:relative}
+#mapElevationLegend{bottom:1.9rem!important;left:.5rem!important;width:11rem!important;padding:.4rem .55rem!important}
+/* Abas deixam de ser fixas (não cobrem mais o mapa ao rolar) */
+.zava-tabs{position:static!important}
+/* Botões flutuantes removidos da tela: a ajuda agora fica no cabeçalho */
+#floatingWidgetsContainer{display:none!important}
+.zava-help{width:2.5rem;height:2.5rem;border-radius:9999px;border:1px solid #c9d3d1;background:#fff;color:#0d5c63;font-weight:800;font-size:1.1rem;line-height:1}
+#aiAssistantDrawer{bottom:calc(1rem + env(safe-area-inset-bottom))!important;right:.75rem!important;left:.75rem;width:auto!important;max-width:26rem;margin-left:auto}
   </style>
 
 </head>
@@ -718,6 +728,7 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
           <span>Ver XML</span>
         </button>
 
+        <button id="btnHeaderHelp" type="button" class="zava-help" aria-label="Abrir ajuda rápida" title="Ajuda rápida">?</button>
         <button id="btnMenuHamburger" type="button" aria-label="Abrir Menu e Configurações Avançadas"
           class="p-2 rounded-lg text-slate-700 hover:bg-slate-100 border border-transparent hover:border-slate-200 transition">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
@@ -1011,6 +1022,8 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
             </button>
           </div>
 
+          <!-- Elemento Leaflet Map -->
+          <div class="zava-mapbox">
           <!-- Legenda Flutuante Inferior Esquerda: Elevação do Terreno (PDF Págs. 41, 45, 48, 50, 52) -->
           <div id="mapElevationLegend" class="absolute bottom-3 left-3 z-20 bg-white/95 backdrop-blur border border-slate-200 rounded-xl p-2.5 shadow-lg w-48 pointer-events-none">
             <div class="flex items-center gap-1.5 text-xs font-bold text-slate-800 mb-1.5">
@@ -1024,8 +1037,8 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
             </div>
           </div>
 
-          <!-- Elemento Leaflet Map -->
-          <div id="map"></div>
+            <div id="map"></div>
+          </div>
 
           <!-- Barra de Simulação de Voo e Telemetria -->
           <div class="bg-slate-900 text-slate-100 px-3 py-2 flex flex-wrap items-center justify-between gap-2 text-xs">
@@ -2063,7 +2076,8 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
     </div>
   </div>
 
-  <script>
+  <script>document.getElementById('btnHeaderHelp').addEventListener('click',function(){document.getElementById('btnFloatingAI').click()});</script>
+<script>
 (function(){
   function show(guide){
     document.body.classList.toggle('show-guide',guide);
