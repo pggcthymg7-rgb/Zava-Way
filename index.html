@@ -679,6 +679,25 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
 #floatingWidgetsContainer{display:none!important}
 .zava-help{width:2.5rem;height:2.5rem;border-radius:9999px;border:1px solid #c9d3d1;background:#fff;color:#0d5c63;font-weight:800;font-size:1.1rem;line-height:1}
 #aiAssistantDrawer{bottom:calc(1rem + env(safe-area-inset-bottom))!important;right:.75rem!important;left:.75rem;width:auto!important;max-width:26rem;margin-left:auto}
+
+/* ===== Dados complementares / drone personalizado ===== */
+.zx{margin-top:.75rem;border:1px solid #e3dccd;border-radius:.9rem;background:#fbf8f2}
+.zx>summary{list-style:none;cursor:pointer;padding:.7rem .9rem;font-weight:800;font-size:.9rem;color:#1a2e35;min-height:2.75rem;display:flex;align-items:center}
+.zx>summary::-webkit-details-marker{display:none}
+.zx-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem;padding:0 .75rem .75rem}
+.zx-item{background:#fff;border:1px solid #e3dccd;border-radius:.7rem;padding:.55rem .65rem;display:flex;flex-direction:column;gap:.15rem;min-width:0}
+.zx-item span{font-size:.72rem;color:#627a7e;line-height:1.25}
+.zx-item b{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:.95rem;color:#1a2e35}
+.zx-item.zx-bad b{color:#b91c1c}
+.zx-total{grid-column:1/-1;background:#e3eeee;border-color:#b5d3d5}
+.zx-fields{display:grid;gap:.6rem;padding:0 .75rem .5rem}
+.zx-fields label,.zx-custom label{display:flex;flex-direction:column;gap:.25rem;font-size:.75rem;color:#4a6165;font-weight:600}
+.zx-fields input,.zx-custom input{border:1px solid #c9d3d1;border-radius:.7rem;padding:.5rem .7rem;font-size:.9rem;background:#fff;color:#1a2e35;min-height:2.5rem;width:100%}
+.zx-note{padding:0 .75rem .75rem;font-size:.7rem;color:#627a7e;line-height:1.4}
+.zx-custom{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;padding:.75rem;margin-bottom:.5rem;border:1px dashed #0d5c63;border-radius:.9rem;background:#f2f7f7}
+.zx-custom-title{grid-column:1/-1;font-weight:800;font-size:.8rem;color:#0d5c63}
+.zx-custom p{grid-column:1/-1;font-size:.7rem;color:#627a7e;line-height:1.4;margin:0}
+@media (min-width:640px){.zx-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.zx-fields{grid-template-columns:1fr 1fr}}
   </style>
 
 </head>
@@ -826,6 +845,21 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
     </dl>
   </details>
 
+  <details class="zg-sec" id="gExtras">
+    <summary>4-B. Dados complementares, drone personalizado e mapa</summary>
+    <dl>
+      <dt>Espaçamento entre faixas</dt><dd>Distância entre duas linhas de voo vizinhas. Muda com a altura e com a sobreposição lateral.</dd>
+      <dt>Distância entre fotos</dt><dd>Quanto o drone avança entre um disparo e o próximo. Depende da altura e da sobreposição frontal.</dd>
+      <dt>Intervalo entre fotos e velocidade máxima recomendada</dt><dd>A câmera precisa de um tempo mínimo entre fotos. Se a velocidade for alta demais, o intervalo fica menor que esse mínimo e faltam fotos. O app calcula a velocidade máxima com base no "intervalo mínimo entre fotos" que você informa (confira no manual do seu drone). O campo fica vermelho e a exportação avisa quando a velocidade passa do recomendado.</dd>
+      <dt>Armazenamento estimado</dt><dd>Previsão do espaço no cartão de memória, considerando JPEG. Fotos em RAW ocupam bem mais.</dd>
+      <dt>Tempos de voo</dt><dd>Separa a subida e o trânsito até o primeiro ponto, a missão em si, e o retorno com pouso. São estimativas: subida a 3 m/s, retorno a 10 m/s, descida a 2 m/s. O vento pode mudar bastante esses valores.</dd>
+      <dt>Velocidade de trânsito</dt><dd>Velocidade do drone entre a decolagem e o primeiro ponto. Se ficar vazia, usa a mesma da missão. Vai para o arquivo exportado.</dd>
+      <dt>Drone personalizado</dt><dd>Escolha "Personalizado" na lista de drones e informe o tamanho da imagem em pixels, o tamanho do sensor e a distância focal <u>real</u> (não a equivalente). O app recalcula resolução no solo (GSD), faixas e fotos. A exportação usa o perfil padrão: teste a importação no DJI Fly.</dd>
+      <dt>Camadas do mapa</dt><dd>O botão alterna Satélite, Híbrido (satélite com nomes de ruas e lugares) e Mapa.</dd>
+      <dt>Terreno não carregado</dt><dd>Enquanto você não buscar a elevação real, o gráfico e a legenda de terreno aparecem marcados como não carregados/ilustrativos. Não use esses valores para decidir altura de voo.</dd>
+    </dl>
+  </details>
+
   <details class="zg-sec" id="gTerreno">
     <summary>5. Terreno, ponto de decolagem e ponto de interesse</summary>
     <ul>
@@ -970,6 +1004,30 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
           <div id="kpiSpeed" class="text-xl font-extrabold font-mono-num text-slate-900 mt-0.5">8m/s</div>
         </div>
       </div>
+      <details id="zavaExtraStats" class="zx" open>
+        <summary>📊 Dados complementares do voo</summary>
+        <div class="zx-grid">
+          <div class="zx-item"><span>Espaçamento entre faixas</span><b id="zxLineSpacing">—</b></div>
+          <div class="zx-item"><span>Distância entre fotos</span><b id="zxPhotoStep">—</b></div>
+          <div class="zx-item"><span>Intervalo entre fotos (na velocidade atual)</span><b id="zxPhotoInterval">—</b></div>
+          <div class="zx-item"><span>Velocidade máxima recomendada</span><b id="zxMaxSpeed">—</b></div>
+          <div class="zx-item"><span>Fotos estimadas</span><b id="zxPhotos">—</b></div>
+          <div class="zx-item"><span>Armazenamento estimado (JPEG)</span><b id="zxStorage">—</b></div>
+          <div class="zx-item"><span>Subida + trânsito até o 1º ponto</span><b id="zxTimeClimb">—</b></div>
+          <div class="zx-item"><span>Missão (1º ponto até o fim)</span><b id="zxTimeMission">—</b></div>
+          <div class="zx-item"><span>Retorno + pouso</span><b id="zxTimeRth">—</b></div>
+          <div class="zx-item zx-total"><span>Tempo total de voo</span><b id="zxTimeTotal">—</b></div>
+        </div>
+        <div class="zx-fields">
+          <label>Intervalo mínimo entre fotos da câmera (s)
+            <input id="minPhotoIntervalInput" type="number" min="0.5" max="10" step="0.1" value="2" inputmode="decimal">
+          </label>
+          <label>Velocidade de trânsito até o 1º ponto (m/s) — vazio = igual à da missão
+            <input id="transitSpeedInput" type="number" min="1" max="15" step="0.5" placeholder="igual à missão" inputmode="decimal">
+          </label>
+        </div>
+        <p class="zx-note" id="zxNote">Estimativas: subida a 3 m/s, retorno a 10 m/s e descida a 2 m/s. O intervalo mínimo varia por drone e formato de foto: consulte o manual do seu modelo.</p>
+      </details>
     </section>
 
     <!-- Layout Principal: Mapa + Painéis de Configuração -->
@@ -1170,6 +1228,7 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
               <option value="mini4pro">DJI Mini 4 Pro</option>
               <option value="litox1">DJI Lito X1</option>
               <option value="potensic_atom2">Potensic Atom 2</option>
+              <option value="custom">Personalizado (informar sensor e lente)</option>
               <optgroup label="Modelos Adicionais (Compatibilidade v2)">
                 <option value="mavic3e">DJI Mavic 3 Enterprise (M3E)</option>
                 <option value="potensic_atom">Potensic Atom</option>
@@ -1186,7 +1245,16 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
 
           <!-- Painel Expansível "Especificações do sensor" (PDF Pág. 6) -->
           <div class="rounded-xl overflow-hidden border border-slate-200">
-            <button id="btnToggleSensorSpecs" type="button"
+            <div id="customDronePanel" class="zx-custom hidden">
+            <div class="zx-custom-title">Parâmetros da câmera personalizada</div>
+            <label>Imagem em pixels — largura<input id="cdImgW" type="number" value="4000" min="100" inputmode="numeric"></label>
+            <label>Imagem em pixels — altura<input id="cdImgH" type="number" value="3000" min="100" inputmode="numeric"></label>
+            <label>Sensor físico — largura (mm)<input id="cdSensW" type="number" value="9.6" step="0.01" min="1" inputmode="decimal"></label>
+            <label>Sensor físico — altura (mm)<input id="cdSensH" type="number" value="7.2" step="0.01" min="1" inputmode="decimal"></label>
+            <label>Distância focal real (mm)<input id="cdFocal" type="number" value="6.7" step="0.01" min="1" inputmode="decimal"></label>
+            <p>Use os valores reais do manual (não a focal equivalente de 35 mm). A exportação usa o perfil de drone padrão do app: confirme a importação no DJI Fly antes de voar.</p>
+          </div>
+          <button id="btnToggleSensorSpecs" type="button"
               class="w-full bg-slate-200/80 hover:bg-slate-200 px-3.5 py-2 text-xs font-semibold text-slate-700 flex items-center justify-between transition">
               <span>Especificações do sensor</span>
               <span id="sensorSpecsChevron">⌄</span>
@@ -2125,7 +2193,7 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
       return 'none';
     }
 
-        // Wrappers seguros para alert() e confirm() compatíveis com navegador e sandbox iframe
+        // Wrappers seguros de diálogo compatíveis com navegador e sandbox iframe
     function safeAlertDialog(message) {
       const safeMsg = String(message ?? '');
       showToast(safeMsg);
@@ -2332,6 +2400,8 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
         { lat: -16.72585, lng: -49.26930 },
         { lat: -16.72585, lng: -49.26850 }
       ],
+      corridorSegments: [],
+      activeCorridorSegmentIdx: -1,
       obliqueOvershootPolygon: [],
       waypoints: [],
       selectedWpIndex: null,
@@ -2500,18 +2570,30 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
       const terrainFollowEnabled = document.getElementById('chkTerrainFollowToggle').checked;
       const terrainStepM = Math.max(10, Number(document.getElementById('terrainSampleStepSlider').value) || 30);
 
-      const footprintW = (altitude * cam.sensorW) / cam.focalLen;
-      const footprintH = (altitude * cam.sensorH) / cam.focalLen;
+      const isFacadeMode = (state.mode === 'facade');
+      const facadeDistVal = Math.max(5, Number(document.getElementById('facadeDistanceInput')?.value) || 12);
+      const effectiveRefDist = isFacadeMode ? facadeDistVal : altitude;
+
+      const footprintW = (effectiveRefDist * cam.sensorW) / cam.focalLen;
+      const footprintH = (effectiveRefDist * cam.sensorH) / cam.focalLen;
       const gsdCm = (footprintW * 100) / cam.imgW;
-      const lineSpacing = Math.max(4, footprintW * (1 - sideOverlap));
-      const frontStep = Math.max(3, footprintH * (1 - frontOverlap));
+      const lineSpacing = isFacadeMode
+        ? Math.max(1.5, footprintW * (1 - sideOverlap))
+        : Math.max(4, footprintW * (1 - sideOverlap));
+      const frontStep = isFacadeMode
+        ? Math.max(1.5, footprintH * (1 - frontOverlap))
+        : Math.max(3, footprintH * (1 - frontOverlap));
 
       // Atualiza painel "Especificações do sensor" (PDF Pág. 6)
       document.getElementById('specSensorDim').textContent = `Sensor: ${cam.sensorW}×${cam.sensorH} mm`;
       document.getElementById('specFocalFov').textContent = `Distância focal: ${cam.focalLen} mm | Campo de visão (FOV): ${cam.fov}°`;
       document.getElementById('specMegapixels').textContent = `${cam.mp} MP`;
-      document.getElementById('specGsdLine').textContent = `Resolução no solo (GSD): ${gsdCm.toFixed(2)} cm/px`;
-      document.getElementById('specCoverageLine').textContent = `Largura cobertura: ${footprintW.toFixed(1)} m`;
+      document.getElementById('specGsdLine').textContent = isFacadeMode
+        ? `Resolução na fachada (GSD a ${facadeDistVal}m): ${gsdCm.toFixed(2)} cm/px`
+        : `Resolução no solo (GSD): ${gsdCm.toFixed(2)} cm/px`;
+      document.getElementById('specCoverageLine').textContent = isFacadeMode
+        ? `Cobertura na parede: ${footprintW.toFixed(1)}×${footprintH.toFixed(1)} m`
+        : `Largura cobertura: ${footprintW.toFixed(1)} m`;
 
       return {
         droneKey,
@@ -2559,6 +2641,24 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
       return null;
     }
 
+    function invalidateOrRefreshTerrainOnMove(reasonMsg) {
+      if (!state.terrainApplied) return;
+      // Invalida imediatamente o estado SRTM antigo para impedir mistura de SRTM real com elevação sintética (846m)
+      state.terrainApplied = false;
+      const syncElev = syntheticGroundElevation(state.homePoint.lat, state.homePoint.lng);
+      state.homePoint.groundElev = syncElev;
+      state.homePoint.elevation = syncElev;
+      state.waypoints.forEach(wp => {
+        const e = syntheticGroundElevation(wp.lat, wp.lng);
+        wp.groundElev = e;
+        wp.elevation = e;
+      });
+      if (document.getElementById('chkTerrainFollowToggle')?.checked) {
+        showToast(reasonMsg || 'Posição alterada: atualizando elevação real SRTM...');
+        setTimeout(() => { applyTerrainFollowingSRTM(); }, 60);
+      }
+    }
+
     function confirmTerrainResetIfNeeded(prevWaypoints, newCoordsList) {
       if (!state.terrainApplied) return true;
       if (!Array.isArray(prevWaypoints) || prevWaypoints.length === 0) return true;
@@ -2569,15 +2669,15 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
       for (let i = 0; i < newCoordsList.length; i++) {
         const pt = newCoordsList[i];
         const byCoord = prevWaypoints.some(pw => Math.abs(pw.lat - pt.lat) <= TOLERANCE && Math.abs(pw.lng - pt.lng) <= TOLERANCE);
-        if (byCoord || i < prevWaypoints.length) matchedCount++;
+        if (byCoord) matchedCount++;
       }
 
-      if (matchedCount === 0) {
-        const proceed = safeConfirmDialog('A alteração vai remover o ajuste de terreno. Continuar?');
-        if (proceed) {
-          state.terrainApplied = false;
+      if (matchedCount < newCoordsList.length) {
+        // Alguns pontos mudaram de lugar: invalida SRTM antigo para não misturar cotas reais com cotas sintéticas (846m)
+        state.terrainApplied = false;
+        if (document.getElementById('chkTerrainFollowToggle')?.checked) {
+          setTimeout(() => { applyTerrainFollowingSRTM(); }, 80);
         }
-        return proceed;
       }
       return true;
     }
@@ -2585,7 +2685,51 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
     // ============================================================================
     // GERADORES GEOMÉTRICOS DOS 6 MODOS (WAYPOINTS, GRID, DOUBLE GRID, CORREDOR, OBLÍQUO, FACHADA)
     // ============================================================================
-    function generatePolygonLawnmowerPoints(polyPts, angleDeg, spacing, frontStep, margin, everyPhotoWp, passIndex = 0, customPitch = null) {
+    function offsetPolygonParallel(localPoly, margin) {
+      if (!margin || Math.abs(margin) < 0.01 || localPoly.length < 3) {
+        return localPoly.map(p => ({ x: p.x, y: p.y }));
+      }
+      // Calcula área com sinal para descobrir orientação (CCW > 0, CW < 0)
+      let signedArea2 = 0;
+      const n = localPoly.length;
+      for (let i = 0; i < n; i++) {
+        const j = (i + 1) % n;
+        signedArea2 += localPoly[i].x * localPoly[j].y - localPoly[j].x * localPoly[i].y;
+      }
+      const orient = signedArea2 >= 0 ? 1 : -1;
+      const out = [];
+      for (let i = 0; i < n; i++) {
+        const pPrev = localPoly[(i - 1 + n) % n];
+        const pCurr = localPoly[i];
+        const pNext = localPoly[(i + 1) % n];
+
+        const dx1 = pCurr.x - pPrev.x, dy1 = pCurr.y - pPrev.y;
+        const len1 = Math.hypot(dx1, dy1) || 1;
+        // Normal externa da aresta anterior
+        const nx1 = orient * (dy1 / len1), ny1 = orient * (-dx1 / len1);
+
+        const dx2 = pNext.x - pCurr.x, dy2 = pNext.y - pCurr.y;
+        const len2 = Math.hypot(dx2, dy2) || 1;
+        // Normal externa da próxima aresta
+        const nx2 = orient * (dy2 / len2), ny2 = orient * (-dx2 / len2);
+
+        // Bissetriz das duas normais externas
+        let bx = nx1 + nx2, by = ny1 + ny2;
+        const bLen = Math.hypot(bx, by);
+        if (bLen < 1e-4) {
+          out.push({ x: pCurr.x + nx1 * margin, y: pCurr.y + ny1 * margin });
+        } else {
+          bx /= bLen;
+          by /= bLen;
+          const cosHalf = Math.max(0.35, bx * nx1 + by * ny1);
+          const miter = Math.min(margin * 2.5, Math.max(-margin * 2.5, margin / cosHalf));
+          out.push({ x: pCurr.x + bx * miter, y: pCurr.y + by * miter });
+        }
+      }
+      return out;
+    }
+
+    function generatePolygonLawnmowerPoints(polyPts, angleDeg, spacing, frontStep, margin, everyPhotoWp, passIndex = 0, customPitch = null, offsetEastNorth = null, fixedHeading = null) {
       if (polyPts.length < 3) return [];
       const refLat = polyPts[0].lat;
       const refLng = polyPts[0].lng;
@@ -2596,15 +2740,7 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
         return rotateXY(m.x, m.y, angleRad);
       });
 
-      const cx = localPoly.reduce((s, p) => s + p.x, 0) / localPoly.length;
-      const cy = localPoly.reduce((s, p) => s + p.y, 0) / localPoly.length;
-
-      const expandedPoly = localPoly.map(p => {
-        const dx = p.x - cx;
-        const dy = p.y - cy;
-        const len = Math.hypot(dx, dy) || 1;
-        return { x: p.x + (dx / len) * margin, y: p.y + (dy / len) * margin };
-      });
+      const expandedPoly = offsetPolygonParallel(localPoly, margin);
 
       let minX = Infinity, maxX = -Infinity;
       expandedPoly.forEach(p => {
@@ -2612,10 +2748,30 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
         if (p.x > maxX) maxX = p.x;
       });
 
+      const widthX = maxX - minX;
+      if (!Number.isFinite(widthX) || widthX <= 0.1) return [];
+
+      // ERRO 6 (1): Garante cobertura simétrica e no mínimo 1 linha central mesmo em polígonos estreitos
+      const xPositions = [];
+      if (widthX < spacing) {
+        xPositions.push((minX + maxX) / 2);
+      } else {
+        const numIntervals = Math.floor((widthX - spacing * 0.25) / spacing);
+        const totalSpan = numIntervals * spacing;
+        const startX = (minX + maxX) / 2 - totalSpan / 2;
+        for (let k = 0; k <= numIntervals; k++) {
+          xPositions.push(startX + k * spacing);
+        }
+      }
+
+      const shiftE = offsetEastNorth ? (offsetEastNorth.east || 0) : 0;
+      const shiftN = offsetEastNorth ? (offsetEastNorth.north || 0) : 0;
+
       const resultPoints = [];
       let lineIndex = 0;
 
-      for (let x = minX + spacing * 0.35; x <= maxX - spacing * 0.15; x += spacing) {
+      for (let xi = 0; xi < xPositions.length; xi++) {
+        const x = xPositions[xi];
         const intersectionsY = [];
         for (let i = 0; i < expandedPoly.length; i++) {
           const p1 = expandedPoly[i];
@@ -2627,29 +2783,48 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
           }
         }
         intersectionsY.sort((a, b) => a - b);
-        if (intersectionsY.length >= 2) {
-          const yStart = intersectionsY[0];
-          const yEnd = intersectionsY[intersectionsY.length - 1];
-          const forward = (lineIndex % 2 === 0);
-          const yA = forward ? yStart : yEnd;
-          const yB = forward ? yEnd : yStart;
 
-          if (everyPhotoWp) {
-            const segLen = Math.abs(yB - yA);
-            const steps = Math.max(1, Math.floor(segLen / frontStep));
-            for (let s = 0; s <= steps; s++) {
-              const currY = yA + (yB - yA) * (s / steps);
-              const unrot = rotateXY(x, currY, -angleRad);
-              const ll = metersToLatLng(unrot.x, unrot.y, refLat, refLng);
-              resultPoints.push({ ...ll, passIndex, lineIndex, customPitch });
-            }
-          } else {
-            const unrotA = rotateXY(x, yA, -angleRad);
-            const unrotB = rotateXY(x, yB, -angleRad);
-            resultPoints.push({ ...metersToLatLng(unrotA.x, unrotA.y, refLat, refLng), passIndex, lineIndex, customPitch });
-            resultPoints.push({ ...metersToLatLng(unrotB.x, unrotB.y, refLat, refLng), passIndex, lineIndex, customPitch });
+        // ERRO 6 (3): Suporte a polígonos côncavos ("L", "U") percorrendo pares [2k, 2k+1]
+        const pairs = [];
+        for (let k = 0; k + 1 < intersectionsY.length; k += 2) {
+          if (Math.abs(intersectionsY[k + 1] - intersectionsY[k]) > 0.5) {
+            pairs.push([intersectionsY[k], intersectionsY[k + 1]]);
           }
-          lineIndex++;
+        }
+
+        if (pairs.length > 0) {
+          const forward = (lineIndex % 2 === 0);
+          const orderedPairs = forward ? pairs : pairs.slice().reverse();
+
+          orderedPairs.forEach(pair => {
+            const yA = forward ? pair[0] : pair[1];
+            const yB = forward ? pair[1] : pair[0];
+
+            if (everyPhotoWp) {
+              const segLen = Math.abs(yB - yA);
+              const steps = Math.max(1, Math.floor(segLen / frontStep));
+              for (let s = 0; s <= steps; s++) {
+                const currY = yA + (yB - yA) * (s / steps);
+                const unrot = rotateXY(x, currY, -angleRad);
+                const ll = metersToLatLng(unrot.x + shiftE, unrot.y + shiftN, refLat, refLng);
+                const ptObj = { ...ll, passIndex, lineIndex, customPitch };
+                if (fixedHeading !== null && fixedHeading !== undefined) ptObj.customHeading = fixedHeading;
+                resultPoints.push(ptObj);
+              }
+            } else {
+              const unrotA = rotateXY(x, yA, -angleRad);
+              const unrotB = rotateXY(x, yB, -angleRad);
+              const ptA = { ...metersToLatLng(unrotA.x + shiftE, unrotA.y + shiftN, refLat, refLng), passIndex, lineIndex, customPitch };
+              const ptB = { ...metersToLatLng(unrotB.x + shiftE, unrotB.y + shiftN, refLat, refLng), passIndex, lineIndex, customPitch };
+              if (fixedHeading !== null && fixedHeading !== undefined) {
+                ptA.customHeading = fixedHeading;
+                ptB.customHeading = fixedHeading;
+              }
+              resultPoints.push(ptA);
+              resultPoints.push(ptB);
+            }
+            lineIndex++;
+          });
         }
       }
       return resultPoints;
@@ -2674,7 +2849,9 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
               lng: Number((pA.lng + (pB.lng - pA.lng) * t).toFixed(7)),
               passIndex: pA.passIndex ?? 0,
               lineIndex: pA.lineIndex ?? i,
+              segmentIndex: pA.segmentIndex ?? 0,
               customPitch: pA.customPitch ?? null,
+              customHeading: pA.customHeading,
               isTerrainIntermediate: true
             });
             extraCount++;
@@ -2750,37 +2927,105 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
       } else if (state.mode === 'corridor') {
         const numLines = Math.max(3, Number(document.getElementById('corridorLinesSlider').value) || 3);
         const sidePairs = Math.floor((numLines - 1) / 2);
-        document.getElementById('corridorLinesSubtext').textContent = `1 linha central + ${sidePairs} de cada lado`;
+        const segmentEnabled = Boolean(document.getElementById('chkCorridorSegment')?.checked);
+        const maxSegLen = Math.max(100, Number(document.getElementById('corridorSegmentLengthInput')?.value) || 500);
+        state.corridorSegments = [];
 
         if (state.corridorVertices.length >= 2) {
           const refLat = state.corridorVertices[0].lat;
           const refLng = state.corridorVertices[0].lng;
           const xyPath = state.corridorVertices.map(p => latLngToMeters(p.lat, p.lng, refLat, refLng));
-          const generated = [];
 
-          for (let l = 0; l < numLines; l++) {
-            const lineOffsetIdx = l - sidePairs;
-            const offsetMeters = lineOffsetIdx * cfg.lineSpacing;
-            const lineCoords = [];
-            for (let i = 0; i < xyPath.length; i++) {
-              const pPrev = xyPath[Math.max(0, i - 1)];
-              const pNext = xyPath[Math.min(xyPath.length - 1, i + 1)];
-              const dx = pNext.x - pPrev.x;
-              const dy = pNext.y - pPrev.y;
-              const len = Math.hypot(dx, dy) || 1;
-              const nx = -dy / len;
-              const ny = dx / len;
-              const ox = xyPath[i].x + nx * offsetMeters;
-              const oy = xyPath[i].y + ny * offsetMeters;
-              lineCoords.push({ ...metersToLatLng(ox, oy, refLat, refLng), passIndex: l, lineIndex: l });
-            }
-            if (l % 2 === 1) lineCoords.reverse();
-            generated.push(...lineCoords);
+          // Calcula distância acumulada ao longo do eixo central do corredor
+          const cumDists = [0];
+          for (let i = 1; i < xyPath.length; i++) {
+            const segD = Math.hypot(xyPath[i].x - xyPath[i - 1].x, xyPath[i].y - xyPath[i - 1].y);
+            cumDists.push(cumDists[i - 1] + segD);
           }
-          basePoints = generated;
+          const totalAxisLen = cumDists[cumDists.length - 1] || 0;
+
+          // Helper para interpolar ponto (x, y) na distância d ao longo do eixo
+          function pointAtAxisDist(targetD) {
+            if (targetD <= 0) return { x: xyPath[0].x, y: xyPath[0].y };
+            if (targetD >= totalAxisLen) return { x: xyPath[xyPath.length - 1].x, y: xyPath[xyPath.length - 1].y };
+            for (let i = 0; i < cumDists.length - 1; i++) {
+              if (targetD >= cumDists[i] && targetD <= cumDists[i + 1]) {
+                const span = (cumDists[i + 1] - cumDists[i]) || 1;
+                const t = (targetD - cumDists[i]) / span;
+                return {
+                  x: xyPath[i].x + (xyPath[i + 1].x - xyPath[i].x) * t,
+                  y: xyPath[i].y + (xyPath[i + 1].y - xyPath[i].y) * t
+                };
+              }
+            }
+            return { x: xyPath[xyPath.length - 1].x, y: xyPath[xyPath.length - 1].y };
+          }
+
+          // ERRO CRÍTICO 4: Se "Fragmentar em segmentos" estiver ativo, corta o eixo transversalmente a cada maxSegLen metros
+          const axisSubPaths = [];
+          if (segmentEnabled && totalAxisLen > maxSegLen) {
+            const numSegs = Math.ceil(totalAxisLen / maxSegLen);
+            for (let s = 0; s < numSegs; s++) {
+              const dStart = s * maxSegLen;
+              const dEnd = Math.min(totalAxisLen, (s + 1) * maxSegLen);
+              const subPts = [pointAtAxisDist(dStart)];
+              for (let i = 1; i < xyPath.length - 1; i++) {
+                if (cumDists[i] > dStart + 0.5 && cumDists[i] < dEnd - 0.5) {
+                  subPts.push({ x: xyPath[i].x, y: xyPath[i].y });
+                }
+              }
+              subPts.push(pointAtAxisDist(dEnd));
+              axisSubPaths.push(subPts);
+            }
+          } else {
+            axisSubPaths.push(xyPath);
+          }
+
+          const generatedAll = [];
+          axisSubPaths.forEach((subPath, segIdx) => {
+            const segPoints = [];
+            for (let l = 0; l < numLines; l++) {
+              const lineOffsetIdx = l - sidePairs;
+              const offsetMeters = lineOffsetIdx * cfg.lineSpacing;
+              const lineCoords = [];
+              for (let i = 0; i < subPath.length; i++) {
+                const pPrev = subPath[Math.max(0, i - 1)];
+                const pNext = subPath[Math.min(subPath.length - 1, i + 1)];
+                const dx = pNext.x - pPrev.x;
+                const dy = pNext.y - pPrev.y;
+                const len = Math.hypot(dx, dy) || 1;
+                const nx = -dy / len;
+                const ny = dx / len;
+                const ox = subPath[i].x + nx * offsetMeters;
+                const oy = subPath[i].y + ny * offsetMeters;
+                lineCoords.push({
+                  ...metersToLatLng(ox, oy, refLat, refLng),
+                  passIndex: segIdx * numLines + l,
+                  lineIndex: segIdx * numLines + l,
+                  segmentIndex: segIdx
+                });
+              }
+              if (l % 2 === 1) lineCoords.reverse();
+              segPoints.push(...lineCoords);
+            }
+            state.corridorSegments.push(segPoints);
+            generatedAll.push(...segPoints);
+          });
+
+          if (segmentEnabled && state.corridorSegments.length > 1) {
+            document.getElementById('corridorLinesSubtext').textContent =
+              `1 linha central + ${sidePairs} de cada lado • ${state.corridorSegments.length} segmentos de até ${maxSegLen}m`;
+          } else {
+            document.getElementById('corridorLinesSubtext').textContent =
+              `1 linha central + ${sidePairs} de cada lado`;
+          }
+
+          basePoints = generatedAll;
+        } else {
+          document.getElementById('corridorLinesSubtext').textContent = `1 linha central + ${sidePairs} de cada lado`;
         }
       } else if (state.mode === 'oblique') {
-        // Modo Oblíquo (PDF Págs. 21-23, 50)
+        // ERRO CRÍTICO 3: Modo Oblíquo com Offset Horizontal Real (d = altitude * tan(45°)) e Yaw travado na direção da visada
         const level = document.getElementById('obliqueCaptureLevelSelect').value;
         const baseAngle = cfg.gridAngle;
         const aFrente = baseAngle % 360;
@@ -2788,72 +3033,89 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
         const aDir = (baseAngle + 90) % 360;
         const aEsq = (baseAngle + 270) % 360;
 
+        // Converte azimute 0..360 para intervalo DJI WPML [-180, 180]
+        const toWpmlYaw = (deg) => {
+          const norm = ((deg % 360) + 360) % 360;
+          return norm > 180 ? Math.round(norm - 360) : Math.round(norm);
+        };
+
         let passesConfig = [];
         if (level === 'economico') {
           passesConfig = [
-            { angle: aFrente, pitch: -90, passIdx: 0 },
-            { angle: aFrente, pitch: -45, passIdx: 1 },
-            { angle: aTras, pitch: -45, passIdx: 2 }
+            { angle: aFrente, pitch: -90, passIdx: 0, lookAzimuth: null },
+            { angle: aFrente, pitch: -45, passIdx: 1, lookAzimuth: aFrente },
+            { angle: aTras, pitch: -45, passIdx: 2, lookAzimuth: aTras }
           ];
           document.getElementById('obliquePassesNote').textContent =
-            `Passadas geradas: Nadir ${aFrente}° • Oblíqua frente ${aFrente}° • Oblíqua trás ${aTras}°`;
+            `Passadas geradas: Nadir ${aFrente}° • Oblíqua frente ${aFrente}° • Oblíqua trás ${aTras}° (offset real d=${Math.round(cfg.altitude)}m)`;
         } else if (level === 'completo') {
           passesConfig = [
-            { angle: aFrente, pitch: -90, passIdx: 0 },
-            { angle: aDir, pitch: -90, passIdx: 1 },
-            { angle: aFrente, pitch: -45, passIdx: 2 },
-            { angle: aTras, pitch: -45, passIdx: 3 },
-            { angle: aDir, pitch: -45, passIdx: 4 },
-            { angle: aEsq, pitch: -45, passIdx: 5 }
+            { angle: aFrente, pitch: -90, passIdx: 0, lookAzimuth: null },
+            { angle: aDir, pitch: -90, passIdx: 1, lookAzimuth: null },
+            { angle: aFrente, pitch: -45, passIdx: 2, lookAzimuth: aFrente },
+            { angle: aTras, pitch: -45, passIdx: 3, lookAzimuth: aTras },
+            { angle: aDir, pitch: -45, passIdx: 4, lookAzimuth: aDir },
+            { angle: aEsq, pitch: -45, passIdx: 5, lookAzimuth: aEsq }
           ];
           document.getElementById('obliquePassesNote').textContent =
-            `Passadas geradas: Nadir ${aFrente}°/${aDir}° • Oblíqua frente ${aFrente}° • Oblíqua trás ${aTras}° • Oblíqua direita ${aDir}° • Oblíqua esquerda ${aEsq}°`;
+            `Passadas geradas: Nadir ${aFrente}°/${aDir}° • Oblíqua frente ${aFrente}° • Oblíqua trás ${aTras}° • Oblíqua direita ${aDir}° • Oblíqua esquerda ${aEsq}° (offset d=${Math.round(cfg.altitude)}m)`;
         } else {
           // Padrão: nadir + 4 oblíquas (5 passadas)
           passesConfig = [
-            { angle: aFrente, pitch: -90, passIdx: 0 },
-            { angle: aFrente, pitch: -45, passIdx: 1 },
-            { angle: aTras, pitch: -45, passIdx: 2 },
-            { angle: aDir, pitch: -45, passIdx: 3 },
-            { angle: aEsq, pitch: -45, passIdx: 4 }
+            { angle: aFrente, pitch: -90, passIdx: 0, lookAzimuth: null },
+            { angle: aFrente, pitch: -45, passIdx: 1, lookAzimuth: aFrente },
+            { angle: aTras, pitch: -45, passIdx: 2, lookAzimuth: aTras },
+            { angle: aDir, pitch: -45, passIdx: 3, lookAzimuth: aDir },
+            { angle: aEsq, pitch: -45, passIdx: 4, lookAzimuth: aEsq }
           ];
           document.getElementById('obliquePassesNote').textContent =
-            `Passadas geradas: Nadir ${aFrente}° • Oblíqua frente ${aFrente}° • Oblíqua trás ${aTras}° • Oblíqua direita ${aDir}° • Oblíqua esquerda ${aEsq}°`;
+            `Passadas geradas: Nadir ${aFrente}° • Oblíqua frente ${aFrente}° • Oblíqua trás ${aTras}° • Oblíqua direita ${aDir}° • Oblíqua esquerda ${aEsq}° (offset d=${Math.round(cfg.altitude)}m)`;
         }
 
-        // Calcula polígono de overshoot em laranja tracejado (d = altitude * tan(45°) * 0.45)
+        // Distância horizontal de visada oblíqua a 45°: d = H * tan(45°) = H
+        const obliqueOffsetDist = cfg.altitude * Math.tan(45 * DEG_TO_RAD);
+
+        // Calcula polígono de overshoot em laranja tracejado (envoltória de alcance do drone nas passadas oblíquas)
         if (state.polygonVertices.length >= 3) {
           const refLat = state.polygonVertices[0].lat;
           const refLng = state.polygonVertices[0].lng;
           const xy = state.polygonVertices.map(p => latLngToMeters(p.lat, p.lng, refLat, refLng));
-          const cx = xy.reduce((s, p) => s + p.x, 0) / xy.length;
-          const cy = xy.reduce((s, p) => s + p.y, 0) / xy.length;
-          const overshootM = Math.min(60, cfg.altitude * 0.45);
-          state.obliqueOvershootPolygon = xy.map(p => {
-            const dx = p.x - cx;
-            const dy = p.y - cy;
-            const len = Math.hypot(dx, dy) || 1;
-            return metersToLatLng(p.x + (dx / len) * overshootM, p.y + (dy / len) * overshootM, refLat, refLng);
-          });
+          const expandedEnv = offsetPolygonParallel(xy, obliqueOffsetDist);
+          state.obliqueOvershootPolygon = expandedEnv.map(p => metersToLatLng(p.x, p.y, refLat, refLng));
         }
 
         const allObliquePts = [];
         passesConfig.forEach(pc => {
+          // Se for passada oblíqua (-45°), desloca a caixa da passada no sentido OPOSTO à visada da câmera
+          // para que o eixo ótico a 45° atinja exatamente o centro/bordas do polígono alvo
+          let offsetEN = null;
+          let fixedYaw = null;
+          if (pc.pitch === -45 && pc.lookAzimuth !== null) {
+            const lookRad = pc.lookAzimuth * DEG_TO_RAD;
+            offsetEN = {
+              east: -obliqueOffsetDist * Math.sin(lookRad),
+              north: -obliqueOffsetDist * Math.cos(lookRad)
+            };
+            fixedYaw = toWpmlYaw(pc.lookAzimuth);
+          }
+
           const pts = generatePolygonLawnmowerPoints(
             state.polygonVertices,
             pc.angle,
             cfg.lineSpacing * 1.15,
             cfg.frontStep,
             cfg.margin,
-            false,
+            cfg.everyPhotoWp,
             pc.passIdx,
-            pc.pitch
+            pc.pitch,
+            offsetEN,
+            fixedYaw
           );
           allObliquePts.push(...pts);
         });
         basePoints = allObliquePts;
       } else if (state.mode === 'facade') {
-        // Modo Fachada (PDF Págs. 24-38)
+        // ERRO 7: Modo Fachada respeitando #frontOverlapInput, #sideOverlapInput e distância real até a parede
         const minH = Math.max(3, Number(document.getElementById('facadeMinHeightInput').value) || 10);
         const maxH = Math.max(minH + 2, Number(document.getElementById('facadeMaxHeightInput').value) || 45);
         const wallDist = Math.max(5, Number(document.getElementById('facadeDistanceInput').value) || 12);
@@ -2874,9 +3136,11 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
         const ny = ux * state.facadeSideSign;
 
         const lateralExt = extendLines ? 2.0 : 0;
-        const effVOverlap = extendLines ? 0.75 : cfg.frontOverlap;
+        const effVOverlap = cfg.frontOverlap;
         const vertFootprint = (wallDist * cfg.cam.sensorH) / cfg.cam.focalLen;
-        const stepH = Math.max(2, Math.round(vertFootprint * (1 - effVOverlap)));
+        const horizFootprint = (wallDist * cfg.cam.sensorW) / cfg.cam.focalLen;
+        const stepH = Math.max(1.5, Number((vertFootprint * (1 - effVOverlap)).toFixed(2)));
+        const stepHoriz = Math.max(1.5, Number((horizFootprint * (1 - cfg.sideOverlap)).toFixed(2)));
         const topLimit = extendLines ? maxH + stepH : maxH;
 
         const startXY = {
@@ -2890,14 +3154,36 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
         const llStart = metersToLatLng(startXY.x, startXY.y, refLat, refLng);
         const llEnd = metersToLatLng(endXY.x, endXY.y, refLat, refLng);
         const facadeFacingYaw = computeBearing(llStart, pA);
+        const spanLen = Math.hypot(endXY.x - startXY.x, endXY.y - startXY.y);
 
         const facadePts = [];
         let layerIdx = 0;
-        for (let h = minH; h <= topLimit; h += stepH) {
-          const sPt = layerIdx % 2 === 0 ? llStart : llEnd;
-          const ePt = layerIdx % 2 === 0 ? llEnd : llStart;
-          facadePts.push({ ...sPt, alt: h, customPitch: 0, customHeading: facadeFacingYaw, passIndex: layerIdx, lineIndex: layerIdx });
-          facadePts.push({ ...ePt, alt: h, customPitch: 0, customHeading: facadeFacingYaw, passIndex: layerIdx, lineIndex: layerIdx });
+        for (let h = minH; h <= topLimit + 0.01; h += stepH) {
+          const altLayer = Number(h.toFixed(1));
+          const leftToRight = (layerIdx % 2 === 0);
+          if (cfg.everyPhotoWp && spanLen > stepHoriz) {
+            const numCols = Math.max(1, Math.ceil(spanLen / stepHoriz));
+            for (let c = 0; c <= numCols; c++) {
+              const frac = leftToRight ? (c / numCols) : (1 - c / numCols);
+              const px = startXY.x + (endXY.x - startXY.x) * frac;
+              const py = startXY.y + (endXY.y - startXY.y) * frac;
+              const ll = metersToLatLng(px, py, refLat, refLng);
+              facadePts.push({
+                ...ll,
+                alt: altLayer,
+                customPitch: 0,
+                customHeading: facadeFacingYaw,
+                customAction: 'takePhoto',
+                passIndex: layerIdx,
+                lineIndex: layerIdx
+              });
+            }
+          } else {
+            const sPt = leftToRight ? llStart : llEnd;
+            const ePt = leftToRight ? llEnd : llStart;
+            facadePts.push({ ...sPt, alt: altLayer, customPitch: 0, customHeading: facadeFacingYaw, passIndex: layerIdx, lineIndex: layerIdx });
+            facadePts.push({ ...ePt, alt: altLayer, customPitch: 0, customHeading: facadeFacingYaw, passIndex: layerIdx, lineIndex: layerIdx });
+          }
           layerIdx++;
         }
         basePoints = facadePts;
@@ -2928,18 +3214,27 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
           prevWaypoints
         );
         if (pt.customPitch !== null && pt.customPitch !== undefined) wp.gimbalPitch = pt.customPitch;
-        if (pt.customHeading !== undefined) wp.heading = pt.customHeading;
+        if (pt.customHeading !== undefined && pt.customHeading !== null) {
+          wp.heading = pt.customHeading;
+          wp.lockedModeHeading = pt.customHeading;
+        }
+        if (pt.customAction) {
+          wp.action = validateWaypointAction(pt.customAction);
+        }
         wp.passIndex = pt.passIndex ?? 0;
         wp.lineIndex = pt.lineIndex ?? 0;
+        wp.segmentIndex = pt.segmentIndex ?? 0;
         wp.isTerrainIntermediate = Boolean(pt.isTerrainIntermediate);
         return wp;
       });
 
-      // FIX #4: Cálculo de azimute respeitando o valor manual customAngle quando definido
+      // FIX #4 & ERRO CRÍTICO 3: Cálculo de azimute respeitando customAngle manual ou lockedModeHeading (Oblíquo/Fachada)
       for (let i = 0; i < state.waypoints.length; i++) {
         const wp = state.waypoints[i];
         let autoAzimuth = wp.heading || 0;
-        if (cfg.headingMode === 'towardPOI') {
+        if (wp.lockedModeHeading !== undefined && wp.lockedModeHeading !== null) {
+          autoAzimuth = wp.lockedModeHeading;
+        } else if (cfg.headingMode === 'towardPOI') {
           autoAzimuth = computeBearing(wp, state.poiPoint);
         } else if (state.mode !== 'facade' && i < state.waypoints.length - 1) {
           autoAzimuth = computeBearing(wp, state.waypoints[i + 1]);
@@ -3016,12 +3311,26 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
         totalDistM += Math.hypot(horiz, vert);
       }
 
-      const durationSec = wps.length > 1 ? Math.round(totalDistM / cfg.speed + 5) : 0;
+      // ERRO 9: Penalidade operacional realista por parada/curva nos waypoints (frenagem + estabilização + giro de yaw + reaceleração)
+      const perWpTurnPenaltySec = (cfg.turnMode === 'toPointAndStopWithDiscontinuityCurvature') ? 3.5 : 1.0;
+      const hoverStartSec = 5;
+      const linearFlightSec = wps.length > 1 ? (totalDistM / cfg.speed) : 0;
+      const turnOverheadSec = wps.length > 1 ? (wps.length * perWpTurnPenaltySec) : 0;
+      const durationSec = wps.length > 1 ? Math.round(linearFlightSec + hoverStartSec + turnOverheadSec) : 0;
+
+      // ERRO 10: Fotos no temporizador (3s / 5s) vs fotos por avanço frontal ideal
       const photos3s = durationSec > 0 ? Math.max(1, Math.round(durationSec / 3)) : 0;
       const photos5s = durationSec > 0 ? Math.max(1, Math.round(durationSec / 5)) : 0;
 
       let areaHa = 0;
-      if ((state.mode === 'grid' || state.mode === 'doublegrid' || state.mode === 'oblique') && state.polygonVertices.length >= 3) {
+      let facadeAreaM2 = 0;
+      if (state.mode === 'facade' && state.facadeVertices.length >= 2) {
+        const minH = Math.max(3, Number(document.getElementById('facadeMinHeightInput').value) || 10);
+        const maxH = Math.max(minH + 2, Number(document.getElementById('facadeMaxHeightInput').value) || 45);
+        const wallWidthM = haversineDistance(state.facadeVertices[0], state.facadeVertices[1]);
+        facadeAreaM2 = wallWidthM * Math.max(1, maxH - minH);
+        areaHa = facadeAreaM2 / 10000;
+      } else if ((state.mode === 'grid' || state.mode === 'doublegrid' || state.mode === 'oblique') && state.polygonVertices.length >= 3) {
         areaHa = polygonAreaMeters2(state.polygonVertices, state.polygonVertices[0].lat, state.polygonVertices[0].lng) / 10000;
       } else if (state.mode === 'corridor' && state.corridorVertices.length >= 2) {
         const numLines = Math.max(3, Number(document.getElementById('corridorLinesSlider').value) || 3);
@@ -3041,6 +3350,7 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
         lineSpacing: cfg.lineSpacing,
         frontStep: cfg.frontStep,
         areaHa,
+        facadeAreaM2,
         totalDistM,
         durationSec,
         photos3s,
@@ -3061,7 +3371,9 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
       document.getElementById('kpiDistance').textContent = wps.length > 1
         ? (totalDistM >= 1000 ? `${(totalDistM / 1000).toFixed(2)} km` : `${Math.round(totalDistM)} m`)
         : '—';
-      document.getElementById('kpiGsdSub').textContent = `Resolução no solo (GSD): ${cfg.gsdCm.toFixed(2)} cm/px`;
+      document.getElementById('kpiGsdSub').textContent = state.mode === 'facade'
+        ? `GSD na parede: ${cfg.gsdCm.toFixed(2)} cm/px`
+        : `Resolução no solo (GSD): ${cfg.gsdCm.toFixed(2)} cm/px`;
 
       if (durationSec > 0) {
         const mins = Math.floor(durationSec / 60);
@@ -3077,7 +3389,11 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
 
       document.getElementById('kpiPhotos3s').textContent = photos3s > 0 ? `~${photos3s}` : '—';
       document.getElementById('kpiPhotos5s').textContent = photos5s > 0 ? `~${photos5s}` : '—';
-      document.getElementById('kpiArea').textContent = areaHa > 0 ? `${areaHa.toFixed(2)} ha` : '—';
+      if (state.mode === 'facade') {
+        document.getElementById('kpiArea').textContent = facadeAreaM2 > 0 ? `${Math.round(facadeAreaM2)} m²` : '—';
+      } else {
+        document.getElementById('kpiArea').textContent = areaHa > 0 ? `${areaHa.toFixed(2)} ha` : '—';
+      }
       document.getElementById('kpiAltitude').textContent = `${cfg.altitude}m`;
       document.getElementById('kpiSpeed').textContent = `${cfg.speed}m/s`;
 
@@ -3148,6 +3464,7 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
           state.placingTarget = null;
           document.getElementById('takeoffMandatoryWarning').classList.add('hidden');
           document.getElementById('takeoffPointSubtext').textContent = `Definido: ${lat.toFixed(5)}, ${lng.toFixed(5)} (${elev}m)`;
+          invalidateOrRefreshTerrainOnMove('Ponto de Decolagem alterado: recalculando elevação real SRTM...');
           showToast('Ponto de Decolagem atualizado!');
           buildWaypointsFromMode();
           return;
@@ -3215,6 +3532,9 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
         const elev = syntheticGroundElevation(pos.lat, pos.lng);
         state.homePoint = { lat: Number(pos.lat.toFixed(7)), lng: Number(pos.lng.toFixed(7)), groundElev: elev, elevation: elev };
         state.homeDefinedByUser = true;
+        document.getElementById('takeoffMandatoryWarning').classList.add('hidden');
+        document.getElementById('takeoffPointSubtext').textContent = `Definido: ${pos.lat.toFixed(5)}, ${pos.lng.toFixed(5)} (${elev}m)`;
+        invalidateOrRefreshTerrainOnMove('Ponto de Decolagem movido: atualizando elevação real SRTM...');
         buildWaypointsFromMode();
       });
 
@@ -3395,7 +3715,12 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
               const newElev = syntheticGroundElevation(p.lat, p.lng);
               state.waypoints[idx].groundElev = newElev;
               state.waypoints[idx].elevation = newElev;
-              recalculateStatsAndRender();
+              if (state.terrainApplied) {
+                invalidateOrRefreshTerrainOnMove('Waypoint movido: atualizando elevação real SRTM...');
+                buildWaypointsFromMode();
+              } else {
+                recalculateStatsAndRender();
+              }
             });
           }
         });
@@ -3741,27 +4066,7 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
         </wpml:action>`;
       actions.push(gimbalActionXml);
 
-      // No waylines.wpml do Missao_DJI.kmz original, o WP 0 inclui um segundo gimbalRotate + hover 5s
-      if (idx === 0 && forWaylines) {
-        actions.push(`
-        <wpml:action>
-          <wpml:actionId>${actionId++}</wpml:actionId>
-          <wpml:actionActuatorFunc>gimbalRotate</wpml:actionActuatorFunc>
-          <wpml:actionActuatorFuncParam>
-            <wpml:gimbalHeadingYawBase>aircraft</wpml:gimbalHeadingYawBase>
-            <wpml:gimbalRotateMode>absoluteAngle</wpml:gimbalRotateMode>
-            <wpml:gimbalPitchRotateEnable>1</wpml:gimbalPitchRotateEnable>
-            <wpml:gimbalPitchRotateAngle>${wp.gimbalPitch}</wpml:gimbalPitchRotateAngle>
-            <wpml:gimbalRollRotateEnable>0</wpml:gimbalRollRotateEnable>
-            <wpml:gimbalRollRotateAngle>0</wpml:gimbalRollRotateAngle>
-            <wpml:gimbalYawRotateEnable>0</wpml:gimbalYawRotateEnable>
-            <wpml:gimbalYawRotateAngle>0</wpml:gimbalYawRotateAngle>
-            <wpml:gimbalRotateTimeEnable>0</wpml:gimbalRotateTimeEnable>
-            <wpml:gimbalRotateTime>0</wpml:gimbalRotateTime>
-            <wpml:payloadPositionIndex>0</wpml:payloadPositionIndex>
-          </wpml:actionActuatorFuncParam>
-        </wpml:action>`);
-      }
+      // ERRO 10 Corrigido: Removida a duplicação desnecessária de gimbalRotate no Waypoint 0 de waylines.wpml
 
       const rawAct = (globalAction === 'startRecording' && isLastWp) ? 'stopRecording' : wp.action;
       const actType = validateWaypointAction(rawAct);
@@ -3827,26 +4132,43 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
       </wpml:actionGroup>`;
     }
 
-    // FIX #2: Leitura dinâmica de #heightModeSelect com suporte à spec DJI WPML 1.0.2 + Fidelidade ao Missao_DJI.kmz
-    function generateDjiWpmlFiles() {
+    // FIX #2, ERRO CRÍTICO 2, ERRO CRÍTICO 3, ERRO 5, ERRO 9: Geração de template.kml e waylines.wpml
+    function generateDjiWpmlFiles(customWaypointsList = null) {
       const cfg = getMissionConfig();
+      const wpsList = Array.isArray(customWaypointsList) ? customWaypointsList : state.waypoints;
       const nowMs = Date.now();
       const poiStr = `${state.poiPoint.lat.toFixed(6)},${state.poiPoint.lng.toFixed(6)},0.000000`;
-      const selectedHeightMode = resolveWpmlHeightMode();
-      const isTerrainHeightMode = (selectedHeightMode === 'aboveGroundLevel' || selectedHeightMode === 'realTimeFollowSurface');
+
+      // ERRO CRÍTICO 2: Quando o acompanhamento de terreno SRTM do ZAVA MAPING está ativo,
+      // wp.alt já contém a compensação de relevo relativa ao ponto de decolagem.
+      // Forçar aboveGroundLevel causava dupla compensação ou recusa no DJI Fly.
+      let selectedHeightMode = resolveWpmlHeightMode();
+      if (cfg.terrainFollowEnabled && selectedHeightMode === 'aboveGroundLevel') {
+        selectedHeightMode = 'relativeToStartPoint';
+      }
+      const isTerrainHeightMode = (!cfg.terrainFollowEnabled && (selectedHeightMode === 'aboveGroundLevel' || selectedHeightMode === 'realTimeFollowSurface'));
 
       const terrainCoordSysExtraXml = isTerrainHeightMode ? `
       <wpml:surfaceFollowModeEnable>1</wpml:surfaceFollowModeEnable>
       <wpml:isRealtimeSurfaceFollow>${selectedHeightMode === 'realTimeFollowSurface' ? 1 : 0}</wpml:isRealtimeSurfaceFollow>
       <wpml:surfaceRelativeHeight>${cfg.altitude}</wpml:surfaceRelativeHeight>` : '';
 
-      const useGlobalHeading = (cfg.headingMode === 'followWayline') ? 1 : 0;
+      // ERRO 5: Conecta #transitSpeedInput à tag <wpml:globalTransitionalSpeed>
+      const transitionalSpeed = (typeof window.zavaTransitSpeed === 'function')
+        ? window.zavaTransitSpeed(cfg)
+        : cfg.speed;
+
+      // ERRO CRÍTICO 3: Em modo Oblíquo ou Fachada, cada waypoint possui azimute (Yaw) travado na direção da visada
+      const forcePointHeading = (state.mode === 'oblique' || state.mode === 'facade');
+      const effectiveGlobalHeadingMode = forcePointHeading ? 'smoothTransition' : cfg.headingMode;
+      const useGlobalHeading = (effectiveGlobalHeadingMode === 'followWayline') ? 1 : 0;
       const useGlobalTurn = (cfg.turnMode === 'toPointAndStopWithDiscontinuityCurvature') ? 1 : 0;
 
-      // Distância (m) e duração (s) totais da rota, exigidas pelo formato waylines.wpml
+      // Distância (m) e duração (s) totais da rota (incluindo penalidade de parada nos waypoints - ERRO 9)
       let wlDist = 0, wlDur = 0;
-      for (let k = 1; k < state.waypoints.length; k++) {
-        const a = state.waypoints[k - 1], b = state.waypoints[k];
+      const perWpStopSec = (cfg.turnMode === 'toPointAndStopWithDiscontinuityCurvature') ? 3.5 : 1.0;
+      for (let k = 1; k < wpsList.length; k++) {
+        const a = wpsList[k - 1], b = wpsList[k];
         const R = 6371000, toR = Math.PI / 180;
         const dLat = (b.lat - a.lat) * toR, dLng = (b.lng - a.lng) * toR;
         const h = Math.sin(dLat / 2) ** 2 + Math.cos(a.lat * toR) * Math.cos(b.lat * toR) * Math.sin(dLng / 2) ** 2;
@@ -3856,15 +4178,21 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
         wlDist += seg;
         wlDur += seg / Math.max(0.5, b.speed || cfg.speed);
       }
+      if (wpsList.length > 1) {
+        wlDur += 5 + wpsList.length * perWpStopSec;
+      }
 
-      const placemarksTemplate = state.waypoints.map((wp, idx) => {
+      const placemarksTemplate = wpsList.map((wp, idx) => {
+        const wpHasLockedYaw = (wp.lockedModeHeading !== undefined && wp.lockedModeHeading !== null) || (wp.customAngle !== null && wp.customAngle !== undefined);
+        const wpUseGlobalHeading = (useGlobalHeading === 1 && !wpHasLockedYaw) ? 1 : 0;
+        const wpHeadingMode = wpHasLockedYaw ? 'smoothTransition' : effectiveGlobalHeadingMode;
         const includeTemplateActionGroup = (idx === 0 || validateWaypointAction(wp.action) !== 'none');
         const actionGroupXml = includeTemplateActionGroup
-          ? buildActionGroupXml(wp, idx, idx === state.waypoints.length - 1, cfg.globalAction, false)
+          ? buildActionGroupXml(wp, idx, idx === wpsList.length - 1, cfg.globalAction, false)
           : '';
-        const customHeadingXml = useGlobalHeading === 0 ? `
+        const customHeadingXml = wpUseGlobalHeading === 0 ? `
       <wpml:waypointHeadingParam>
-        <wpml:waypointHeadingMode>${escapeHtml(cfg.headingMode)}</wpml:waypointHeadingMode>
+        <wpml:waypointHeadingMode>${escapeHtml(wpHeadingMode)}</wpml:waypointHeadingMode>
         <wpml:waypointHeadingAngle>${wp.heading}</wpml:waypointHeadingAngle>
         <wpml:waypointPoiPoint>${poiStr}</wpml:waypointPoiPoint>
         <wpml:waypointHeadingAngleEnable>1</wpml:waypointHeadingAngleEnable>
@@ -3881,23 +4209,26 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
       <wpml:height>${wp.alt}</wpml:height>
       <wpml:useGlobalHeight>0</wpml:useGlobalHeight>
       <wpml:useGlobalSpeed>0</wpml:useGlobalSpeed>
-      <wpml:useGlobalHeadingParam>${useGlobalHeading}</wpml:useGlobalHeadingParam>
+      <wpml:useGlobalHeadingParam>${wpUseGlobalHeading}</wpml:useGlobalHeadingParam>
       <wpml:useGlobalTurnParam>${useGlobalTurn}</wpml:useGlobalTurnParam>
       <wpml:gimbalPitchAngle>${wp.gimbalPitch}</wpml:gimbalPitchAngle>
       <wpml:waypointSpeed>${wp.speed}</wpml:waypointSpeed>${customHeadingXml}${actionGroupXml}
     </Placemark>`;
       }).join('');
 
-      const placemarksWaylines = state.waypoints.map((wp, idx) => {
-        const actionGroupXml = buildActionGroupXml(wp, idx, idx === state.waypoints.length - 1, cfg.globalAction, true);
-        const headingParamXml = useGlobalHeading === 1
+      const placemarksWaylines = wpsList.map((wp, idx) => {
+        const wpHasLockedYaw = (wp.lockedModeHeading !== undefined && wp.lockedModeHeading !== null) || (wp.customAngle !== null && wp.customAngle !== undefined);
+        const wpUseGlobalHeading = (useGlobalHeading === 1 && !wpHasLockedYaw) ? 1 : 0;
+        const wpHeadingMode = wpHasLockedYaw ? 'smoothTransition' : effectiveGlobalHeadingMode;
+        const actionGroupXml = buildActionGroupXml(wp, idx, idx === wpsList.length - 1, cfg.globalAction, true);
+        const headingParamXml = wpUseGlobalHeading === 1
           ? `
       <wpml:waypointHeadingParam>
         <wpml:waypointHeadingMode>followWayline</wpml:waypointHeadingMode>
       </wpml:waypointHeadingParam>`
           : `
       <wpml:waypointHeadingParam>
-        <wpml:waypointHeadingMode>${escapeHtml(cfg.headingMode)}</wpml:waypointHeadingMode>
+        <wpml:waypointHeadingMode>${escapeHtml(wpHeadingMode)}</wpml:waypointHeadingMode>
         <wpml:waypointHeadingAngle>${wp.heading}</wpml:waypointHeadingAngle>
         <wpml:waypointPoiPoint>${poiStr}</wpml:waypointPoiPoint>
         <wpml:waypointHeadingAngleEnable>1</wpml:waypointHeadingAngleEnable>
@@ -3935,7 +4266,7 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
     <wpml:exitOnRCLost>executeLostAction</wpml:exitOnRCLost>
     <wpml:executeRCLostAction>goBack</wpml:executeRCLostAction>
     <wpml:takeOffSecurityHeight>${cfg.safeAlt}</wpml:takeOffSecurityHeight>
-    <wpml:globalTransitionalSpeed>${cfg.speed}</wpml:globalTransitionalSpeed>
+    <wpml:globalTransitionalSpeed>${transitionalSpeed}</wpml:globalTransitionalSpeed>
     <wpml:droneInfo>
       <wpml:droneEnumValue>${cfg.drone.droneEnum}</wpml:droneEnumValue>
       <wpml:droneSubEnumValue>${cfg.drone.droneSubEnum}</wpml:droneSubEnumValue>
@@ -3958,7 +4289,7 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
     <wpml:autoFlightSpeed>${cfg.speed}</wpml:autoFlightSpeed>
     <wpml:gimbalPitchMode>usePointSetting</wpml:gimbalPitchMode>
     <wpml:globalWaypointHeadingParam>
-      <wpml:waypointHeadingMode>${escapeHtml(cfg.headingMode)}</wpml:waypointHeadingMode>
+      <wpml:waypointHeadingMode>${escapeHtml(effectiveGlobalHeadingMode)}</wpml:waypointHeadingMode>
       <wpml:waypointHeadingPathMode>followBadArc</wpml:waypointHeadingPathMode>
     </wpml:globalWaypointHeadingParam>
     <wpml:globalWaypointTurnMode>${escapeHtml(cfg.turnMode)}</wpml:globalWaypointTurnMode>
@@ -3976,7 +4307,7 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
       <wpml:exitOnRCLost>executeLostAction</wpml:exitOnRCLost>
       <wpml:executeRCLostAction>goBack</wpml:executeRCLostAction>
       <wpml:takeOffSecurityHeight>${cfg.safeAlt}</wpml:takeOffSecurityHeight>
-      <wpml:globalTransitionalSpeed>${cfg.speed}</wpml:globalTransitionalSpeed>
+      <wpml:globalTransitionalSpeed>${transitionalSpeed}</wpml:globalTransitionalSpeed>
       <wpml:droneInfo>
         <wpml:droneEnumValue>${cfg.drone.droneEnum}</wpml:droneEnumValue>
         <wpml:droneSubEnumValue>${cfg.drone.droneSubEnum}</wpml:droneSubEnumValue>
@@ -3990,7 +4321,7 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
 
     <Folder>
       <wpml:templateId>0</wpml:templateId>
-      <wpml:executeHeightMode>${selectedHeightMode}</wpml:executeHeightMode>
+      <wpml:executeHeightMode>${selectedHeightMode === 'relativeToStartPoint' ? 'relativeToStartPoint' : selectedHeightMode}</wpml:executeHeightMode>
       <wpml:waylineId>0</wpml:waylineId>
       <wpml:distance>${wlDist.toFixed(2)}</wpml:distance>
       <wpml:duration>${wlDur.toFixed(2)}</wpml:duration>
@@ -4023,7 +4354,7 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
         blockers.push('Há waypoints com valores inválidos (coordenada, altitude ou velocidade).');
       }
       if (wps.some(w => w.alt <= 0)) blockers.push('Há waypoints com altitude igual ou menor que zero.');
-      if (blockers.length) { alert('EXPORTAÇÃO BLOQUEADA:\n\n• ' + blockers.join('\n• ')); return false; }
+      if (blockers.length) { safeAlertDialog('EXPORTAÇÃO BLOQUEADA:\n\n• ' + blockers.join('\n• ')); return false; }
 
       const maxAlt = Math.max(...wps.map(w => w.alt));
       if (state.mode !== 'facade' && maxAlt > 120) warns.push(`Altitude máxima de ${maxAlt} m. O limite geral no Brasil (categoria aberta da ANAC) é 120 m acima do solo; para voo recreativo a ICA 100-40 limita a cerca de 60 m.`);
@@ -4036,14 +4367,16 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
         const maxD = Math.max(...wps.map(w => hav(state.homePoint, w)));
         if (maxD > 500) warns.push(`Há pontos a ${Math.round(maxD)} m do ponto de decolagem. Mantenha o drone sempre à vista (linha de visada).`);
       }
-      let dist = 0;
-      for (let i = 1; i < wps.length; i++) dist += hav(wps[i - 1], wps[i]);
-      const durMin = dist / Math.max(1, cfg.speed) / 60;
-      if (durMin > 20) warns.push(`Tempo estimado de ${durMin.toFixed(0)} min. Considere dividir a missão em mais de uma bateria (reserve ao menos 30% de carga).`);
+      const durMin = (state.stats.durationSec || 0) / 60;
+      if (durMin > 20) warns.push(`Tempo estimado de ${durMin.toFixed(0)} min (incluindo paradas nos pontos). Considere dividir a missão em mais de uma bateria (reserve ao menos 30% de carga).`);
+      if (window.zavaMaxRecommendedSpeed && ['grid','doublegrid','corridor','oblique'].includes(state.mode)) {
+        const rec = window.zavaMaxRecommendedSpeed(cfg);
+        if (rec && cfg.speed > rec + 0.05) warns.push(`A velocidade de ${cfg.speed} m/s é maior que a recomendada (${rec.toFixed(1)} m/s) para o intervalo mínimo entre fotos informado. Isso pode gerar fotos faltando ou com falha de sobreposição.`);
+      }
       if (wps.length > 99) warns.push(`A rota tem ${wps.length} waypoints. Alguns aplicativos DJI limitam o número de pontos; teste a importação antes de ir a campo.`);
 
       if (!warns.length) return true;
-      return confirm('VERIFICAÇÃO DE SEGURANÇA — ' + warns.length + ' alerta(s):\n\n• ' + warns.join('\n\n• ') + '\n\nRevise o plano. Deseja exportar mesmo assim?');
+      return safeConfirmDialog('VERIFICAÇÃO DE SEGURANÇA — ' + warns.length + ' alerta(s):\n\n• ' + warns.join('\n\n• ') + '\n\nRevise o plano. Deseja exportar mesmo assim?');
     }
 
     async function exportKMZArchive() {
@@ -4052,6 +4385,31 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
         return;
       }
       if (!runPreflightChecks()) return;
+      const rawName = (document.getElementById('missionNameInput').value || 'Missao_DJI').replace(/[^a-zA-Z0-9_-]/g, '_');
+
+      // ERRO CRÍTICO 4: Se estiver no modo Corredor com "Fragmentar em segmentos" ativo e houver múltiplos segmentos,
+      // gera e baixa um arquivo .kmz independente para cada segmento (ex: Missao_DJI_Seg01.kmz, Missao_DJI_Seg02.kmz...)
+      const segmentEnabled = (state.mode === 'corridor' && document.getElementById('chkCorridorSegment')?.checked);
+      if (segmentEnabled && Array.isArray(state.corridorSegments) && state.corridorSegments.length > 1) {
+        const numSegs = state.corridorSegments.length;
+        for (let s = 0; s < numSegs; s++) {
+          const segWps = state.waypoints.filter(w => (w.segmentIndex ?? 0) === s);
+          if (segWps.length < 2) continue;
+          const { templateKml, waylinesWpml } = generateDjiWpmlFiles(segWps);
+          const zip = new JSZip();
+          const wpmzFolder = zip.folder('wpmz');
+          wpmzFolder.file('template.kml', templateKml);
+          wpmzFolder.file('waylines.wpml', waylinesWpml);
+          const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' });
+          const segTag = String(s + 1).padStart(2, '0');
+          setTimeout(() => {
+            triggerBlobDownload(blob, `${rawName}_Seg${segTag}.kmz`);
+          }, s * 280);
+        }
+        showToast(`Exportados ${numSegs} arquivos .kmz segmentados (${rawName}_Seg01.kmz a Seg${String(numSegs).padStart(2, '0')}.kmz)!`);
+        return;
+      }
+
       const { templateKml, waylinesWpml } = generateDjiWpmlFiles();
       const zip = new JSZip();
       const wpmzFolder = zip.folder('wpmz');
@@ -4059,7 +4417,6 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
       wpmzFolder.file('waylines.wpml', waylinesWpml);
 
       const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' });
-      const rawName = (document.getElementById('missionNameInput').value || 'Missao_DJI').replace(/[^a-zA-Z0-9_-]/g, '_');
       triggerBlobDownload(blob, `${rawName}.kmz`);
       showToast(`Arquivo ${rawName}.kmz exportado (padrão DJI Fly WPML 1.0.2)!`);
     }
@@ -4089,13 +4446,33 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
       showToast(`Planilha ${rawName}.csv exportada com sucesso!`);
     }
 
-    // FIX #4: Persistência de customAngle e terrainApplied no export .JSON
+    // FIX #4 & ERRO 8: Exportação .JSON híbrida (Backup Completo ZAVA MAPING + Schema de Waypoints PotensicPro)
     function exportPotensicJSON() {
       const cfg = getMissionConfig();
       const rawName = (document.getElementById('missionNameInput').value || 'Missao_DJI').replace(/[^a-zA-Z0-9_-]/g, '_');
+      const nowEpochSec = Math.floor(Date.now() / 1000);
+      const potensicPoints = state.waypoints.map((wp, idx) => ({
+        index: idx,
+        lat: Number(wp.lat.toFixed(7)),
+        lng: Number(wp.lng.toFixed(7)),
+        lon: Number(wp.lng.toFixed(7)),
+        latitude: Number(wp.lat.toFixed(7)),
+        longitude: Number(wp.lng.toFixed(7)),
+        alt: Number(wp.alt),
+        height: Number(wp.alt),
+        speed: Number(wp.speed),
+        gimbalPitch: Number(wp.gimbalPitch),
+        heading: Number(wp.heading),
+        yaw: Number(wp.heading),
+        hoverTime: validateWaypointAction(wp.action) === 'hover' ? 5 : 0,
+        action: validateWaypointAction(wp.action) === 'takePhoto' ? 1 : 0
+      }));
       const payload = {
         format: 'Maps4MeConnect_Potensic_DJI_Mission_v3',
+        version: 1,
+        missionId: rawName,
         missionName: rawName,
+        timestamp: nowEpochSec,
         createdAt: new Date().toISOString(),
         mode: state.mode,
         droneModel: cfg.droneKey,
@@ -4103,6 +4480,16 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
         cameraId: cfg.cam.id,
         cameraLabel: cfg.cam.label,
         terrainApplied: Boolean(state.terrainApplied),
+        // Chaves compatíveis com leitores de missão PotensicPro (wayPoints / points)
+        speed: cfg.speed,
+        altitude: cfg.altitude,
+        takeoffAlt: cfg.safeAlt,
+        finishAction: cfg.finishAction === 'goHome' ? 1 : 0,
+        totalDistance: Number((state.stats.totalDistM || 0).toFixed(2)),
+        totalDuration: Math.round(state.stats.durationSec || 0),
+        wayPoints: potensicPoints,
+        points: potensicPoints,
+        // Estrutura completa de Backup de Projeto ZAVA MAPING (reimportável em Importar rota)
         parameters: {
           altitudeAGL: cfg.altitude,
           speedMS: cfg.speed,
@@ -4120,6 +4507,8 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
         homePoint: state.homePoint,
         poiPoint: state.poiPoint,
         polygonVertices: state.polygonVertices,
+        corridorVertices: state.corridorVertices,
+        facadeVertices: state.facadeVertices,
         waypoints: state.waypoints.map((wp, idx) => ({
           index: idx + 1,
           latitude: wp.lat,
@@ -4136,7 +4525,7 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
       };
       const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
       triggerBlobDownload(blob, `${rawName}.json`);
-      showToast(`Arquivo ${rawName}.json exportado (Potensic Atom 2 / Backup)!`);
+      showToast(`Arquivo ${rawName}.json exportado (Backup Completo do Projeto + Estrutura Potensic)!`);
     }
 
     function exportGoogleEarthKML() {
@@ -4752,16 +5141,16 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
         });
       });
 
-      // Toggle de Terrain Follow (SRTM)
+      // ERRO CRÍTICO 2 Corrigido: Mantém #heightModeSelect em 'relativeToStartPoint' ao ativar o SRTM do app,
+      // evitando dupla compensação de relevo ou rejeição do arquivo pelo DJI Fly.
       document.getElementById('chkTerrainFollowToggle').addEventListener('change', (e) => {
         const checked = e.target.checked;
         document.getElementById('terrainExpandedPanel').classList.toggle('hidden', !checked);
+        document.getElementById('heightModeSelect').value = 'relativeToStartPoint';
         if (checked) {
-          document.getElementById('heightModeSelect').value = 'aboveGroundLevel';
           applyTerrainFollowingSRTM();
         } else {
           state.terrainApplied = false;
-          document.getElementById('heightModeSelect').value = 'relativeToStartPoint';
           buildWaypointsFromMode();
         }
       });
@@ -5139,5 +5528,109 @@ main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
       });
     });
   </script>
+<script>
+/* ZAVA MAPING — recursos complementares (escritos para este projeto) */
+(function(){
+  var $=function(id){return document.getElementById(id)};
+  var fmtT=function(sec){if(!isFinite(sec))return '—';sec=Math.round(sec);var m=Math.floor(sec/60),r=sec%60;return m+' min '+(r<10?'0':'')+r+' s'};
+  function minInterval(){var v=parseFloat($('minPhotoIntervalInput').value);return (isFinite(v)&&v>=0.5)?v:2}
+  window.zavaTransitSpeed=function(cfg){var v=parseFloat($('transitSpeedInput').value);return (isFinite(v)&&v>=1)?Math.min(v,15):cfg.speed};
+  window.zavaMaxRecommendedSpeed=function(cfg){return cfg.frontStep/minInterval()};
+
+  /* ---------- Drone personalizado ---------- */
+  DRONE_SPECS.custom={name:'Personalizado',maxBattleMin:25,droneEnum:DRONE_SPECS.air3.droneEnum,droneSubEnum:DRONE_SPECS.air3.droneSubEnum,
+    cameras:[{id:'custom_cam',label:'Câmera personalizada',sensorW:9.6,sensorH:7.2,focalLen:6.7,eqFocal:24,fov:82,mp:12,imgW:4000,imgH:3000}]};
+  function syncCustom(){
+    var c=DRONE_SPECS.custom.cameras[0];
+    var g=function(id,d){var v=parseFloat($(id).value);return (isFinite(v)&&v>0)?v:d};
+    c.imgW=Math.round(g('cdImgW',4000));c.imgH=Math.round(g('cdImgH',3000));
+    c.sensorW=g('cdSensW',9.6);c.sensorH=g('cdSensH',7.2);c.focalLen=g('cdFocal',6.7);
+    c.mp=Math.round(c.imgW*c.imgH/1e5)/10;
+    c.fov=Math.round(2*Math.atan(c.sensorW/(2*c.focalLen))*180/Math.PI);
+  }
+  function togglePanel(){$('customDronePanel').classList.toggle('hidden',$('droneModelSelect').value!=='custom')}
+  ['cdImgW','cdImgH','cdSensW','cdSensH','cdFocal'].forEach(function(id){
+    $(id).addEventListener('input',function(){syncCustom();if($('droneModelSelect').value==='custom')buildWaypointsFromMode()});
+  });
+  $('droneModelSelect').addEventListener('change',function(){togglePanel();syncCustom()});
+  ['minPhotoIntervalInput','transitSpeedInput'].forEach(function(id){$(id).addEventListener('input',function(){updateExtras()})});
+
+  /* ---------- Dados complementares ---------- */
+  function hav(a,b){var R=6371000,r=Math.PI/180,dLat=(b.lat-a.lat)*r,dLng=(b.lng-a.lng)*r;
+    var h=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(a.lat*r)*Math.cos(b.lat*r)*Math.sin(dLng/2)*Math.sin(dLng/2);return 2*R*Math.asin(Math.sqrt(h))}
+  function updateExtras(){
+    try{
+      var cfg=getMissionConfig(),w=state.waypoints,home=state.homePoint;
+      var mapping=['grid','doublegrid','corridor','oblique','facade'].indexOf(state.mode)>=0;
+      $('zxLineSpacing').textContent=mapping?cfg.lineSpacing.toFixed(1)+' m':'—';
+      $('zxPhotoStep').textContent=mapping?cfg.frontStep.toFixed(1)+' m':'—';
+      var interval=cfg.frontStep/cfg.speed,rec=cfg.frontStep/minInterval();
+      $('zxPhotoInterval').textContent=mapping?interval.toFixed(1)+' s':'—';
+      $('zxPhotoInterval').parentNode.classList.toggle('zx-bad',mapping&&interval<minInterval());
+      $('zxMaxSpeed').textContent=mapping?rec.toFixed(1)+' m/s':'—';
+      $('zxMaxSpeed').parentNode.classList.toggle('zx-bad',mapping&&cfg.speed>rec+0.05);
+      var shotBadge=$('speedShotBadge');
+      if(shotBadge&&mapping){shotBadge.textContent='Disparo ideal: '+interval.toFixed(1)+'s';}
+      if(!w.length){['zxPhotos','zxStorage','zxTimeClimb','zxTimeMission','zxTimeRth','zxTimeTotal'].forEach(function(i){$(i).textContent='—'});return}
+      var dist=0,tLinear=0;
+      for(var i=1;i<w.length;i++){var h=hav(w[i-1],w[i]),v=w[i].alt-w[i-1].alt,seg=Math.sqrt(h*h+v*v);dist+=seg;tLinear+=seg/Math.max(0.5,w[i].speed||cfg.speed)}
+      var stopPenalty=(cfg.turnMode==='toPointAndStopWithDiscontinuityCurvature')?3.5:1.0;
+      var tMission=w.length>1?(tLinear+5+w.length*stopPenalty):0;
+      var photos=mapping?Math.max(1,Math.round(dist/cfg.frontStep)):w.length;
+      $('zxPhotos').textContent=mapping?(photos+' (a cada '+interval.toFixed(1)+'s)'):String(photos);
+      var mb=photos*cfg.cam.mp*0.4; /* ~0,4 MB por megapixel em JPEG */
+      $('zxStorage').textContent=mb>=1024?(mb/1024).toFixed(1)+' GB':Math.round(mb)+' MB';
+      var tr=zavaTransitSpeed(cfg),climb=cfg.safeAlt/3;
+      var toFirst=hav(home,w[0]),tTransit=toFirst/tr+Math.abs(w[0].alt-cfg.safeAlt)/3;
+      var tClimb=climb+tTransit;
+      var back=hav(w[w.length-1],home),tRth=cfg.finishAction==='goHome'?(back/10+w[w.length-1].alt/2):0;
+      $('zxTimeClimb').textContent=fmtT(tClimb);
+      $('zxTimeMission').textContent=fmtT(tMission);
+      $('zxTimeRth').textContent=cfg.finishAction==='goHome'?fmtT(tRth):'não se aplica';
+      var tot=tClimb+tMission+tRth,max=(cfg.drone.maxBattleMin||25)*60;
+      $('zxTimeTotal').textContent=fmtT(tot)+(tot>max*0.8?'  ⚠️ perto do limite da bateria':'');
+      $('zxTimeTotal').parentNode.classList.toggle('zx-bad',tot>max*0.8);
+    }catch(e){}
+    /* Dados de terreno ainda não carregados são apenas ilustrativos: sinaliza na tela */
+    try{
+      var real=!!state.terrainApplied,leg=$('mapElevationLegend');
+      if(!real){
+        $('legendMinElev').textContent='—';$('legendMaxElev').textContent='—';
+        var t=leg.querySelector('span:last-child');if(t)t.textContent='Terreno: não carregado';
+        var b=$('elevationDiffBadge');if(b&&b.textContent.indexOf('ilustrativo')<0)b.textContent='⚠️ Terreno não carregado — gráfico ilustrativo';
+      }else{
+        var t2=leg.querySelector('span:last-child');if(t2)t2.textContent='Elevação do terreno';
+      }
+    }catch(e){}
+  }
+  window.zavaUpdateExtras=updateExtras;
+  var _orig=recalculateStatsAndRender;
+  recalculateStatsAndRender=function(){var r=_orig.apply(this,arguments);updateExtras();return r};
+
+  /* ---------- Mapa: Satélite → Híbrido → Mapa ---------- */
+  var btn=$('btnToggleMapLayer');
+  btn.addEventListener('click',function(ev){
+    ev.stopImmediatePropagation();
+    if(!tileLayers.hybrid){
+      tileLayers.hybrid=L.layerGroup([
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:20}),
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{maxZoom:20,attribution:'Leaflet | &copy; Esri'})
+      ]);
+    }
+    if(currentTileLayer)map.removeLayer(currentTileLayer);
+    var next={satellite:'hybrid',hybrid:'osm',osm:'satellite'}[currentLayerKey]||'satellite';
+    currentLayerKey=next;currentTileLayer=tileLayers[next];currentTileLayer.addTo(map);
+    var label={satellite:['🗺️','Híbrido'],hybrid:['🗺️','Mapa'],osm:['🛰️','Satélite']}[next];
+    /* o botão mostra para qual camada o toque vai levar */
+    var nxt={satellite:['🏷️','Híbrido'],hybrid:['🗺️','Mapa'],osm:['🛰️','Satélite']}[next];
+    $('mapLayerBtnIcon').textContent=nxt[0];$('mapLayerBtnText').textContent=nxt[1];
+  },true);
+  /* rótulo inicial: a camada atual é Satélite, então o próximo toque leva a Híbrido */
+  window.addEventListener('DOMContentLoaded',function(){setTimeout(function(){
+    $('mapLayerBtnIcon').textContent='🏷️';$('mapLayerBtnText').textContent='Híbrido';updateExtras();
+  },0)});
+})();
+
+</script>
 </body>
 </html>
