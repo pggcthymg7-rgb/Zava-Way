@@ -633,6 +633,42 @@ header .text-lg{white-space:nowrap}
   .mode-tab-btn .truncate{overflow:visible;text-overflow:clip}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+
+/* ======================= Abas Planejador / Guia ======================= */
+.zava-tabs{display:flex;gap:.25rem;padding:.25rem;background:#b9c8c6;border-radius:1rem;max-width:28rem;position:sticky;top:calc(4.4rem + env(safe-area-inset-top));z-index:25}
+.zava-tab{flex:1;min-height:2.75rem;border-radius:.8rem;font-size:.9rem;font-weight:700;color:#1a2e35;background:transparent;transition:background .15s,color .15s}
+.zava-tab.is-active{background:#fff;color:#0d5c63;box-shadow:0 1px 3px rgba(26,46,53,.25)}
+body.show-guide main>*:not(#zavaTabs):not(#guiaView){display:none!important}
+body:not(.show-guide) #guiaView{display:none}
+/* ======================= Guia ======================= */
+.zava-guide{max-width:52rem;margin:0 auto;display:flex;flex-direction:column;gap:.75rem}
+.zg-head{background:#fff;border:1px solid #e3dccd;border-radius:1rem;padding:1rem}
+.zg-head h2{font-size:1.25rem;font-weight:800;color:#1a2e35}
+.zg-head p{margin-top:.25rem;font-size:.9rem;color:#4a6165}
+.zg-alert{background:#fffbeb;border:1px solid #fde68a;color:#78350f;border-radius:1rem;padding:.85rem 1rem;font-size:.88rem;line-height:1.5}
+.zg-sec{background:#fff;border:1px solid #e3dccd;border-radius:1rem;overflow:hidden}
+.zg-sec>summary{list-style:none;padding:.95rem 1rem;font-weight:800;font-size:.98rem;color:#1a2e35;display:flex;justify-content:space-between;align-items:center;gap:.5rem;min-height:3rem}
+.zg-sec>summary::-webkit-details-marker{display:none}
+.zg-sec>summary::after{content:"⌄";color:#0d5c63;font-size:1.1rem;transition:transform .2s}
+.zg-sec[open]>summary{border-bottom:1px solid #e3dccd;background:#faf7f1}
+.zg-sec[open]>summary::after{transform:rotate(180deg)}
+.zg-sec ul,.zg-sec ol{padding:.9rem 1rem 1rem 2.2rem;display:flex;flex-direction:column;gap:.6rem;font-size:.9rem;line-height:1.55;color:#34494e}
+.zg-sec ul{list-style:disc}.zg-sec ol{list-style:decimal}
+.zg-sec dl{padding:.9rem 1rem 1rem;display:grid;gap:.15rem;font-size:.9rem;line-height:1.55;color:#34494e}
+.zg-sec dt{font-weight:800;color:#0d5c63;margin-top:.55rem}
+.zg-sec dd{margin:0}
+.zg-sec b{color:#1a2e35}
+
+/* Elementos comerciais do site original: ocultos (IDs mantidos para o JavaScript) */
+#trialCounterBanner,#btnToggleCommercialUI,#commercialFooterCta{display:none!important}
+
+/* Evita que a tabela de pontos alargue a página no celular: a rolagem fica dentro do cartão */
+main section,main .grid>*{min-width:0}
+div:has(>table){overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch}
+
+/* Caminhos de arquivo longos quebram linha em vez de alargar a tela */
+main code{overflow-wrap:anywhere;word-break:break-all;white-space:normal}
   </style>
 
 </head>
@@ -655,7 +691,7 @@ header .text-lg{white-space:nowrap}
           <div class="flex items-center gap-2">
             <span class="text-lg sm:text-xl font-extrabold tracking-tight text-slate-800">ZAVA<span class="text-[#0d5c63]"> MAPING</span></span>
             <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-[#0d5c63] border border-emerald-200">
-              v3 • WPML 1.0.2 Auditado
+              v3 • formato DJI WPML 1.0.2
             </span>
           </div>
         </div>
@@ -673,13 +709,13 @@ header .text-lg{white-space:nowrap}
         <button id="btnDownloadSelfHtml" type="button"
           class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold bg-[#0d5c63] hover:bg-[#094a50] text-white shadow-sm transition"
           title="Baixar o código-fonte completo deste arquivo gerador_waypoints_kmz_v3.html">
-          <span>⬇️ Baixar .HTML (v3)</span>
+          <span>⬇️ Baixar este app</span>
         </button>
 
         <button id="btnOpenPreviewModal" type="button"
           class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 transition"
-          title="Inspecionar XML WPML 1.0.2 (template.kml e waylines.wpml)">
-          <span>XML WPML</span>
+          title="Ver os arquivos XML da rota (template.kml e waylines.wpml)">
+          <span>Ver XML</span>
         </button>
 
         <button id="btnMenuHamburger" type="button" aria-label="Abrir Menu e Configurações Avançadas"
@@ -706,6 +742,157 @@ header .text-lg{white-space:nowrap}
   <!-- CONTEÚDO PRINCIPAL                                                    -->
   <!-- ===================================================================== -->
   <main class="flex-1 max-w-7xl w-full mx-auto px-3 py-3 space-y-4">
+    <nav id="zavaTabs" class="zava-tabs" aria-label="Seções do aplicativo">
+      <button type="button" id="tabPlanner" class="zava-tab is-active" aria-selected="true">🗺️ Planejador</button>
+      <button type="button" id="tabGuide" class="zava-tab" aria-selected="false">📖 Guia de uso</button>
+    </nav>
+<section id="guiaView" class="zava-guide" aria-label="Guia de uso">
+  <header class="zg-head">
+    <h2>📖 Guia de uso — ZAVA MAPING</h2>
+    <p>Aprenda o passo a passo, o que cada controle faz e o que ele muda na sua rota. Toque em cada título para abrir.</p>
+  </header>
+
+  <div class="zg-alert" role="note">
+    <strong>⚠️ Segurança em primeiro lugar.</strong> Este app só <em>planeja</em> a rota. A responsabilidade pelo voo é sua: confira o local, os obstáculos, o clima, a bateria e as regras do espaço aéreo antes de decolar. Mantenha o controle remoto na mão e o drone sempre à vista, pronto para assumir o comando.
+  </div>
+
+  <details class="zg-sec" id="gSeguranca" open>
+    <summary>1. Antes de voar — lista de verificação</summary>
+    <ul>
+      <li><b>Regras no Brasil:</b> categoria aberta (ANAC) — até 120 m acima do solo, em linha de visada e longe de pessoas não envolvidas. Voo recreativo tem limites menores (cerca de 60 m de altura e 300 m de distância, pela ICA 100-40). Verifique a norma vigente, o cadastro do drone (SISANT) e a autorização de voo no SARPAS (sistema do DECEA) <i>antes</i> de ir a campo.</li>
+      <li><b>Local:</b> procure árvores, postes, fios, torres e prédios mais altos que a altura da rota. O app não enxerga obstáculos: ele só conhece o terreno.</li>
+      <li><b>Bateria:</b> o tempo estimado é uma previsão. Reserve pelo menos 30% de carga e divida a missão se passar de ~20 min.</li>
+      <li><b>Retorno automático:</b> confirme a altura de retorno para casa no próprio aplicativo DJI e se o GPS do drone marcou o ponto de decolagem.</li>
+      <li><b>Teste em solo:</b> importe a rota no aplicativo DJI e confira no mapa dele se ela está no lugar certo, na altura certa e com a quantidade esperada de pontos.</li>
+      <li><b>Primeiro voo de uma rota nova:</b> acompanhe os primeiros pontos de perto e esteja pronto para cancelar a missão.</li>
+    </ul>
+  </details>
+
+  <details class="zg-sec" id="gPasso">
+    <summary>2. Passo a passo (do zero ao drone)</summary>
+    <ol>
+      <li><b>Escolha o drone e a câmera</b> no cartão "Drone / Câmera". Isso define a resolução no solo (GSD) e a largura coberta por foto.</li>
+      <li><b>Escolha o modo</b> nas abas (Pontos de Rota, Grade, Grade Dupla, Corredor, Oblíquo, Fachada).</li>
+      <li><b>Localize a área:</b> use a busca (cidade, endereço ou coordenadas "latitude, longitude") e o botão Satélite para ver o terreno.</li>
+      <li><b>Desenhe a área ou os pontos</b> no mapa. Arraste os marcadores para ajustar.</li>
+      <li><b>Ajuste altura, velocidade e sobreposição</b> em "Padrões". Os números no topo (distância, tempo, baterias, fotos) atualizam na hora.</li>
+      <li><b>Defina o ponto de decolagem</b> (obrigatório para acompanhar o terreno) e ative o acompanhamento de terreno em áreas com morros.</li>
+      <li><b>Simule o voo</b> (botão "Simular Voo") para ver a rota e a altura ao longo do caminho.</li>
+      <li><b>Exporte</b> o arquivo para o seu drone ("DJI Fly (.kmz)"). O app faz uma verificação de segurança e mostra alertas antes de gerar o arquivo.</li>
+      <li><b>Leve a rota ao drone</b> seguindo o cartão "Como substituir o arquivo de missão", na parte de baixo do Planejador, e confira tudo no aplicativo DJI antes de decolar.</li>
+    </ol>
+  </details>
+
+  <details class="zg-sec" id="gModos">
+    <summary>3. Os 6 modos de voo — o que cada um faz</summary>
+    <ul>
+      <li><b>Pontos de Rota (waypoints):</b> você toca no mapa para criar cada ponto. O drone passa por eles na ordem. Use para inspeções, fotos pontuais e trajetos livres.</li>
+      <li><b>Grade (mapeamento):</b> você desenha uma área e o app cria linhas paralelas que a cobrem com sobreposição entre fotos. Use para mapas e ortomosaicos.</li>
+      <li><b>Grade Dupla:</b> duas grades cruzadas (a segunda a 90° da primeira). Gera mais fotos e melhora a reconstrução 3D de áreas com relevo, vegetação ou construções. Leva mais tempo de voo.</li>
+      <li><b>Corredor:</b> cria linhas ao longo de um trajeto desenhado (estrada, rio, linha de transmissão, duto). Você escolhe o número de linhas e, se quiser, divide em trechos.</li>
+      <li><b>Oblíquo:</b> faz passadas com a câmera inclinada (45°) em várias direções, além da vertical. Serve para modelar fachadas e laterais de construções em 3D.</li>
+      <li><b>Fachada:</b> voa em camadas horizontais paralelas a uma parede, mantendo uma distância fixa. Você informa os dois pontos da parede (no mapa ou por coordenadas), a altura inicial, a altura da fachada e a distância. Exige coordenadas bem precisas e muito cuidado com obstáculos.</li>
+    </ul>
+  </details>
+
+  <details class="zg-sec" id="gControles">
+    <summary>4. Cada controle e o que ele muda</summary>
+    <dl>
+      <dt>Altitude (m)</dt><dd>Altura de voo. Mais alto = cobre mais área por foto e voa mais rápido, mas diminui o detalhe (GSD maior). Altura relativa ao ponto de decolagem. Não ultrapasse o limite legal.</dd>
+      <dt>Velocidade (m/s)</dt><dd>Quanto maior, menor o tempo de voo, porém mais risco de fotos tremidas e menos intervalo entre disparos. Em mapeamento, prefira velocidades moderadas.</dd>
+      <dt>Inclinação da câmera</dt><dd>Ângulo vertical da câmera: -90° olha para baixo (mapas); 0° olha para o horizonte (fachadas); 45° negativo é típico de modelagem 3D.</dd>
+      <dt>Sobreposição frontal (%)</dt><dd>Quanto uma foto repete da anterior, na direção do voo. Maior = mais fotos e mais segurança no processamento.</dd>
+      <dt>Sobreposição lateral (%)</dt><dd>Quanto uma linha repete da linha vizinha. Maior = linhas mais próximas, mais linhas, mais tempo de voo.</dd>
+      <dt>Ângulo da grade (°)</dt><dd>Direção das linhas. Alinhe com o lado maior da área para menos curvas, ou contra o vento para melhor controle.</dd>
+      <dt>Margem da grade</dt><dd>Aumenta (+) ou reduz (−) a área voada em relação ao polígono desenhado.</dd>
+      <dt>Modo de altitude</dt><dd><b>Relativa ao ponto de decolagem</b> (recomendado): as alturas contam a partir do local de decolagem. As outras opções são avançadas e só funcionam em alguns drones; se você usar o acompanhamento de terreno do app, mantenha o modo recomendado para não corrigir o terreno duas vezes.</dd>
+      <dt>Ao finalizar</dt><dd>O que o drone faz no último ponto: voltar para casa e pousar, pairar, voltar ao primeiro ponto ou pousar no local. Para mapeamento, "voltar para casa" é a opção mais comum e segura.</dd>
+      <dt>Tipo de curva</dt><dd><b>Parar em cada ponto</b>: o drone chega ao ponto e para (fotos mais nítidas, voo mais lento). <b>Curva fluida</b>: não para, voo mais rápido, mas pode cortar o canto do ponto.</dd>
+      <dt>Direção da frente do drone (guinada)</dt><dd>Para onde a frente do drone aponta: seguindo a rota, em direção ao ponto de interesse ou em ângulo fixo/personalizado.</dd>
+      <dt>Ação nos pontos</dt><dd>O que acontece em cada ponto: apenas posicionar a câmera, tirar foto, pairar, iniciar ou parar gravação de vídeo.</dd>
+      <dt>Altura segura de decolagem</dt><dd>Altura mínima que o drone sobe antes de seguir ao primeiro ponto. Deve ser maior que os obstáculos próximos ao ponto de decolagem.</dd>
+      <dt>Waypoint por foto</dt><dd>Cria um ponto para cada disparo. Gera muitos pontos e pode deixar o app do drone lento ou recusar a rota; use só quando necessário.</dd>
+    </dl>
+  </details>
+
+  <details class="zg-sec" id="gTerreno">
+    <summary>5. Terreno, ponto de decolagem e ponto de interesse</summary>
+    <ul>
+      <li><b>Ponto de decolagem:</b> toque em "Definir ponto de decolagem" e marque onde o drone vai ligar. Todas as alturas "relativas" partem dali. Se ele estiver no lugar errado, a rota inteira fica na altura errada.</li>
+      <li><b>Acompanhamento de terreno (SRTM):</b> o app busca a elevação real do solo (dados de satélite) e ajusta a altura de cada ponto para o drone manter a mesma altura acima do chão em morros e vales. <b>Precisa de internet.</b> Se a busca falhar, o app avisa e <b>não altera</b> as alturas (a rota continua plana).</li>
+      <li><b>Distância entre pontos de terreno:</b> quanto menor, mais fiel ao relevo — e mais pontos na rota.</li>
+      <li><b>Limites dos dados de elevação:</b> são de resolução média (dezenas de metros) e <u>não incluem árvores, prédios ou fios</u>. Eles não substituem a inspeção visual do local.</li>
+      <li><b>Ponto de interesse (PDI):</b> um alvo para a câmera e a frente do drone apontarem. Você pode gerar uma órbita ao redor dele (circular, helicoidal ou espiral) ou posicionar os pontos manualmente.</li>
+    </ul>
+  </details>
+
+  <details class="zg-sec" id="gMapa">
+    <summary>6. Mapa, simulação, tabela e importação</summary>
+    <ul>
+      <li><b>Mapa / Satélite:</b> alterna a camada. O satélite ajuda a ver obstáculos.</li>
+      <li><b>Minha localização / Enquadrar:</b> centraliza o mapa em você ou ajusta o zoom para mostrar toda a missão.</li>
+      <li><b>Gerar Demo:</b> cria uma rota de exemplo no centro do mapa, só para você conhecer o app. Não use no voo real sem revisar.</li>
+      <li><b>Simular voo:</b> anima o drone pela rota, mostrando altura, altura do solo e progresso. A velocidade da animação é ajustável e não muda a missão.</li>
+      <li><b>Perfil de altitude:</b> gráfico do terreno × altura de voo. Serve para achar trechos onde o drone chega perto do chão.</li>
+      <li><b>Tabela de pontos:</b> toque em uma linha para editar altura, velocidade, câmera e ação daquele ponto, ou para excluí-lo. "Inverter rota" troca o sentido do voo.</li>
+      <li><b>Importar rota:</b> carrega arquivos KML, KMZ, JSON ou GeoJSON para continuar o trabalho ou revisar uma rota existente.</li>
+      <li><b>Limpar área / Limpar polígono:</b> apaga o desenho atual. Não dá para desfazer.</li>
+    </ul>
+  </details>
+
+  <details class="zg-sec" id="gExportar">
+    <summary>7. Exportar — qual arquivo usar</summary>
+    <ul>
+      <li><b>DJI Fly (.kmz):</b> arquivo de missão para o aplicativo DJI Fly. Ao exportar, o app faz uma verificação de segurança (altura acima de 120 m, terreno não carregado, distância longa, bateria, número de pontos) e pede sua confirmação se houver alertas.</li>
+      <li><b>Google Earth (.kml):</b> para visualizar a rota no computador ou compartilhar. Não é arquivo de missão.</li>
+      <li><b>Planilha (CSV):</b> lista de pontos com coordenadas, altura, velocidade etc., para abrir no Excel.</li>
+      <li><b>JSON:</b> cópia completa do projeto (backup) e formato do Potensic Atom 2.</li>
+      <li><b>Ver XML:</b> mostra o conteúdo técnico dos arquivos da rota. Útil para conferência avançada.</li>
+    </ul>
+  </details>
+
+  <details class="zg-sec" id="gGlossario">
+    <summary>8. Glossário — siglas e termos traduzidos</summary>
+    <dl>
+      <dt>ANAC</dt><dd>Agência Nacional de Aviação Civil.</dd>
+      <dt>DECEA</dt><dd>Departamento de Controle do Espaço Aéreo.</dd>
+      <dt>SARPAS</dt><dd>Sistema de Solicitação de Acesso ao Espaço Aéreo por Aeronaves Remotamente Pilotadas (autorização de voo).</dd>
+      <dt>SISANT</dt><dd>Sistema de Aeronaves Não Tripuladas (cadastro do drone na ANAC).</dd>
+      <dt>VLOS</dt><dd>Linha de visada visual: o piloto vê o drone o tempo todo.</dd>
+      <dt>AGL</dt><dd>Altura acima do nível do solo (em inglês, "Above Ground Level").</dd>
+      <dt>GSD</dt><dd>Distância de amostragem no solo: o tamanho real que cada pixel da foto representa (ex.: 3 cm/pixel). Menor = mais detalhe.</dd>
+      <dt>FOV</dt><dd>Campo de visão da câmera, em graus.</dd>
+      <dt>MP</dt><dd>Megapixels (milhões de pixels da foto).</dd>
+      <dt>SRTM</dt><dd>Missão Topográfica por Radar do Ônibus Espacial: base de dados de elevação do terreno.</dd>
+      <dt>GNSS</dt><dd>Sistema Global de Navegação por Satélite (GPS e similares).</dd>
+      <dt>RTK</dt><dd>Posicionamento cinemático em tempo real: GNSS com correção, preciso a centímetros.</dd>
+      <dt>UTM</dt><dd>Sistema Universal Transverso de Mercator: coordenadas em metros, divididas em fusos.</dd>
+      <dt>KML / KMZ</dt><dd>Formato de arquivo de mapas (KMZ é o KML compactado).</dd>
+      <dt>WPML</dt><dd>Linguagem de marcação de waypoints da DJI: formato das missões de voo.</dd>
+      <dt>CSV</dt><dd>Valores separados por vírgula: formato de planilha simples.</dd>
+      <dt>JSON</dt><dd>Formato de texto estruturado para troca de dados.</dd>
+      <dt>PDI / POI</dt><dd>Ponto de interesse: alvo para onde a câmera aponta.</dd>
+      <dt>Waypoint / WP</dt><dd>Ponto de rota: uma posição por onde o drone passa.</dd>
+      <dt>Guinada (yaw)</dt><dd>Giro do drone no eixo vertical, ou seja, para onde a frente aponta.</dd>
+      <dt>Nadir</dt><dd>Câmera apontada 90° para baixo.</dd>
+      <dt>Gimbal</dt><dd>Estabilizador (suporte) da câmera, que permite inclinar a câmera.</dd>
+      <dt>RTH</dt><dd>Retorno para casa (“Return to Home”).</dd>
+      <dt>KPI</dt><dd>Indicadores do topo da tela (pontos, distância, tempo, baterias, fotos, área).</dd>
+    </dl>
+  </details>
+
+  <details class="zg-sec" id="gLimites">
+    <summary>9. Limitações e solução de problemas</summary>
+    <ul>
+      <li><b>O mapa não aparece:</b> o app precisa de internet para carregar o mapa e os dados de elevação. Abra pelo Safari ou Chrome, com conexão. Se aparecer uma faixa vermelha no topo, ela diz o que falhou.</li>
+      <li><b>O aplicativo DJI recusou a rota:</b> reduza o número de pontos (desative "Waypoint por foto", aumente a distância entre pontos de terreno ou divida a área) e tente de novo.</li>
+      <li><b>O app não vê obstáculos:</b> árvores, prédios, fios e antenas não estão nos dados. Revise o local e use o satélite.</li>
+      <li><b>Compatibilidade:</b> o formato segue a especificação pública DJI WPML 1.0.2, mas a aceitação depende do modelo do drone e da versão do aplicativo DJI. <b>Faça sempre o teste de importação em solo antes de voar.</b></li>
+      <li><b>Modo Fachada:</b> use somente com coordenadas precisas e distância generosa da parede.</li>
+    </ul>
+  </details>
+</section>
+
 
     <!-- Título Hero + 8 Cartões de Estatísticas em Tempo Real (PDF Págs. 1 e 42) -->
     <section class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
@@ -716,8 +903,8 @@ header .text-lg{white-space:nowrap}
           </svg>
         </div>
         <div>
-          <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 leading-tight">Gerador de Waypoints KMZ</h1>
-          <p class="text-xs sm:text-sm text-slate-600 mt-0.5">Crie missões de voo para drones DJI — waypoints manuais ou grid automático</p>
+          <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 leading-tight">Gerador de Rotas de Voo para Drones DJI</h1>
+          <p class="text-xs sm:text-sm text-slate-600 mt-0.5">Crie missões de voo para drones DJI: pontos de rota (waypoints) manuais ou grade automática de mapeamento</p>
         </div>
       </div>
 
@@ -725,7 +912,7 @@ header .text-lg{white-space:nowrap}
       <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5">
         <!-- 1. Waypoints -->
         <div class="bg-[#fbf8f2] border border-slate-200/90 rounded-xl p-3">
-          <div class="text-xs text-slate-500 font-medium">Waypoints</div>
+          <div class="text-xs text-slate-500 font-medium">Pontos de Rota</div>
           <div id="kpiWaypoints" class="text-xl font-extrabold font-mono-num text-slate-900 mt-0.5">0</div>
           <div id="kpiTerrainBadge" class="text-[11px] font-semibold text-orange-600 mt-0.5 hidden">+0 terrain</div>
         </div>
@@ -733,7 +920,7 @@ header .text-lg{white-space:nowrap}
         <div class="bg-[#fbf8f2] border border-slate-200/90 rounded-xl p-3">
           <div class="text-xs text-slate-500 font-medium">Distância</div>
           <div id="kpiDistance" class="text-xl font-extrabold font-mono-num text-slate-900 mt-0.5">—</div>
-          <div id="kpiGsdSub" class="text-[10px] text-slate-500 font-mono-num mt-0.5">GSD: —</div>
+          <div id="kpiGsdSub" class="text-[10px] text-slate-500 font-mono-num mt-0.5">Resolução no solo (GSD): —</div>
         </div>
         <!-- 3. Tempo est. -->
         <div class="bg-[#fbf8f2] border border-slate-200/90 rounded-xl p-3">
@@ -860,7 +1047,7 @@ header .text-lg{white-space:nowrap}
             </div>
             <div class="font-mono-num flex flex-wrap items-center gap-3 text-[11px]">
               <span>Status: <strong id="simStatusLabel" class="text-emerald-400">Pronto</strong></span>
-              <span>Alt AGL: <strong id="simAltLabel" class="text-sky-400">100.0 m</strong></span>
+              <span>Altura sobre o solo: <strong id="simAltLabel" class="text-sky-400">100.0 m</strong></span>
               <span>Solo: <strong id="simGroundLabel" class="text-amber-400">848 m</strong></span>
               <span>Progresso: <strong id="simProgressLabel" class="text-white">0%</strong></span>
             </div>
@@ -872,7 +1059,7 @@ header .text-lg{white-space:nowrap}
           <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
             <div class="flex items-center gap-2">
               <span class="text-base">🏢</span>
-              <h3 class="text-sm font-bold text-slate-800">Visualização 3D da Fachada (Conferência)</h3>
+              <h3 class="text-sm font-bold text-slate-800">Visualização 3D da fachada (conferência)</h3>
             </div>
             <div class="flex flex-wrap items-center gap-3 text-[11px] text-slate-600">
               <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Fotos</span>
@@ -887,7 +1074,7 @@ header .text-lg{white-space:nowrap}
         <!-- Gráfico de Perfil Altimétrico SRTM -->
         <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
           <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
-            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Perfil Altimétrico (Elevação SRTM vs. Altitude de Voo)</h3>
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Perfil de altitude (terreno × altura de voo)</h3>
             <span id="elevationDiffBadge" class="text-xs font-mono-num px-2.5 py-0.5 rounded-full bg-emerald-50 text-[#0d5c63] font-semibold border border-emerald-200">
               Desnível solo: 0 m
             </span>
@@ -910,20 +1097,20 @@ header .text-lg{white-space:nowrap}
             <button type="button" data-mode="manual"
               class="mode-tab-btn relative flex items-center justify-center gap-1 py-2 px-1.5 rounded-xl text-xs font-bold transition bg-white text-slate-900 shadow-sm">
               <span>📍</span>
-              <span>Waypoints</span>
+              <span>Pontos de Rota</span>
             </button>
             <!-- Aba 2: Grid + Badge NOVO -->
             <button type="button" data-mode="grid"
               class="mode-tab-btn relative flex items-center justify-center gap-1 py-2 px-1.5 rounded-xl text-xs font-semibold transition text-slate-900 hover:bg-white/60">
               <span>⊞</span>
-              <span>Grid</span>
+              <span>Grade</span>
               <span class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 px-1.5 py-0.2 bg-red-600 text-white text-[8px] font-extrabold rounded uppercase tracking-wider shadow">NOVO</span>
             </button>
             <!-- Aba 3: Double Grid -->
             <button type="button" data-mode="doublegrid"
               class="mode-tab-btn relative flex items-center justify-center gap-1 py-2 px-1.5 rounded-xl text-xs font-semibold transition text-slate-900 hover:bg-white/60">
               <span> 田 </span>
-              <span class="truncate">Double Grid</span>
+              <span class="truncate">Grade Dupla</span>
             </button>
             <!-- Aba 4: Corredor + Badge NOVO -->
             <button type="button" data-mode="corridor"
@@ -1052,14 +1239,14 @@ header .text-lg{white-space:nowrap}
               <label for="facadeCoordFormatSelect" class="block text-xs font-semibold text-slate-700 mb-1">Formato das coordenadas</label>
               <select id="facadeCoordFormatSelect" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800">
                 <option value="geo" selected>Geográfica (decimal ou GMS)</option>
-                <option value="utm">UTM (E / N)</option>
+                <option value="utm">UTM (Leste / Norte, em metros)</option>
               </select>
             </div>
 
             <!-- Campos UTM Zone/Hemisphere (visíveis apenas em modo UTM) -->
             <div id="facadeUtmZoneRow" class="grid grid-cols-2 gap-2 hidden">
               <div>
-                <label for="facadeUtmZone" class="block text-[11px] font-medium text-slate-600 mb-0.5">Fuso UTM (Zona)</label>
+                <label for="facadeUtmZone" class="block text-[11px] font-medium text-slate-600 mb-0.5">Fuso UTM (zona do sistema de coordenadas métricas)</label>
                 <input id="facadeUtmZone" type="number" min="1" max="60" value="22" class="w-full bg-white border border-slate-300 rounded-xl px-2.5 py-1.5 text-xs font-mono-num" />
               </div>
               <div>
@@ -1108,7 +1295,7 @@ header .text-lg{white-space:nowrap}
                   class="w-full bg-white border border-slate-300 rounded-xl px-2.5 py-1.5 text-xs font-mono-num text-slate-800" />
               </div>
               <div>
-                <label for="facadeMaxHeightInput" class="block text-[11px] font-medium text-slate-600 mb-1">Alt. Fachada (m)</label>
+                <label for="facadeMaxHeightInput" class="block text-[11px] font-medium text-slate-600 mb-1">Altura da fachada (m)</label>
                 <input id="facadeMaxHeightInput" type="number" min="6" max="300" step="1" value="45"
                   class="w-full bg-white border border-slate-300 rounded-xl px-2.5 py-1.5 text-xs font-mono-num text-slate-800" />
               </div>
@@ -1236,10 +1423,10 @@ header .text-lg{white-space:nowrap}
             </div>
           </div>
 
-          <!-- SLIDER 6: Gimbal Pitch (°) - Default -90° -->
+          <!-- SLIDER 6: Inclinação da câmera (°) — 0° horizonte, -90° para baixo - Default -90° -->
           <div id="gimbalPitchBox">
             <div class="flex justify-between items-center text-xs mb-1.5">
-              <label for="gimbalPitchInput" class="font-semibold text-slate-700">Gimbal Pitch (°)</label>
+              <label for="gimbalPitchInput" class="font-semibold text-slate-700">Inclinação da câmera (°) — 0° horizonte, -90° para baixo</label>
               <span id="gimbalPitchVal" class="font-mono-num font-bold text-slate-800">-90°</span>
             </div>
             <input id="gimbalPitchInput" type="range" min="-90" max="30" step="5" value="-90" class="m4m-slider" />
@@ -1248,19 +1435,17 @@ header .text-lg{white-space:nowrap}
           <!-- Configurações Avançadas DJI WPML 1.0.2 (Preserva 100% dos controles do v2 + FIX #2 e FIX #4) -->
           <details class="pt-2 border-t border-slate-200 group">
             <summary class="text-xs font-bold text-[#0d5c63] cursor-pointer flex items-center justify-between py-1">
-              <span>⚙️ Opções Avançadas WPML 1.0.2 (Altitude, Curva, Yaw, Ação)</span>
+              <span>⚙️ Opções avançadas (altitude, curva, direção, ação)</span>
               <span class="group-open:rotate-180 transition">⌄</span>
             </summary>
             <div class="pt-2.5 grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
               <div>
-                <label for="heightModeSelect" class="block text-[11px] font-medium text-slate-600 mb-1">Modo de Altitude (WPML)</label>
+                <label for="heightModeSelect" class="block text-[11px] font-medium text-slate-600 mb-1">Modo de altitude</label>
                 <!-- FIX #2: Opções válidas segundo a especificação DJI WPML 1.0.2 -->
                 <select id="heightModeSelect" class="w-full bg-white border border-slate-300 rounded-xl px-2.5 py-1.5 text-xs text-slate-800">
-                  <option value="relativeToStartPoint" selected>relativeToStartPoint (Relativa à Decolagem)</option>
-                  <option value="aboveGroundLevel">aboveGroundLevel (AGL Constante / Terreno)</option>
-                  <option value="realTimeFollowSurface">realTimeFollowSurface (Siga Superfície Real-Time)</option>
-                  <option value="relativeToTakeoff">relativeToTakeoff (Relativa ao Ponto de Decolagem)</option>
-                  <option value="WGS84">WGS84 (Altitude Elipsoidal ASL)</option>
+                  <option value="relativeToStartPoint" selected>Relativa ao ponto de decolagem (recomendado)</option>
+                  <option value="aboveGroundLevel">Altura constante sobre o solo (avançado — só alguns drones)</option>
+                  <option value="realTimeFollowSurface">Seguir superfície em tempo real (avançado — só alguns drones)</option>
                 </select>
               </div>
               <div>
@@ -1271,16 +1456,16 @@ header .text-lg{white-space:nowrap}
               <div>
                 <label for="finishActionSelect" class="block text-[11px] font-medium text-slate-600 mb-1">Ao Finalizar</label>
                 <select id="finishActionSelect" class="w-full bg-white border border-slate-300 rounded-xl px-2.5 py-1.5 text-xs text-slate-800">
-                  <option value="goHome" selected>Return to Home (goHome)</option>
-                  <option value="noAction">Pairar (noAction)</option>
-                  <option value="gotoFirstWaypoint">Ir ao WP 1 (gotoFirstWaypoint)</option>
-                  <option value="autoLand">Pousar no Local (autoLand)</option>
+                  <option value="goHome" selected>Retornar para casa e pousar</option>
+                  <option value="noAction">Ficar pairando no último ponto</option>
+                  <option value="gotoFirstWaypoint">Voltar ao primeiro ponto da rota</option>
+                  <option value="autoLand">Pousar no local do último ponto</option>
                 </select>
               </div>
               <div>
                 <label for="turnModeSelect" class="block text-[11px] font-medium text-slate-600 mb-1">Tipo de Curva</label>
                 <select id="turnModeSelect" class="w-full bg-white border border-slate-300 rounded-xl px-2.5 py-1.5 text-xs text-slate-800">
-                  <option value="toPointAndStopWithDiscontinuityCurvature" selected>Parar no Ponto (Reto / Original Maps4me)</option>
+                  <option value="toPointAndStopWithDiscontinuityCurvature" selected>Parar em cada ponto (trajeto reto) — padrão</option>
                   <option value="toPointAndPassWithContinuityCurvature">Curva Fluida Contínua</option>
                   <option value="coordinateTurn">Curva Coordenada</option>
                 </select>
@@ -1288,14 +1473,14 @@ header .text-lg{white-space:nowrap}
               <div>
                 <label for="globalActionSelect" class="block text-[11px] font-medium text-slate-600 mb-1">Ação de Câmera nos WPs</label>
                 <select id="globalActionSelect" class="w-full bg-white border border-slate-300 rounded-xl px-2.5 py-1.5 text-xs text-slate-800">
-                  <option value="none" selected>Apenas Gimbal + Hover Inicial (Padrão Maps4me)</option>
+                  <option value="none" selected>Apenas câmera + pairar no início (padrão)</option>
                   <option value="takePhoto">Disparar Foto em Cada WP (takePhoto)</option>
                   <option value="startRecording">Iniciar Vídeo no WP1 / Parar no Fim</option>
                   <option value="hover">Pairar 5s (hover)</option>
                 </select>
               </div>
               <div>
-                <label for="headingModeSelect" class="block text-[11px] font-medium text-slate-600 mb-1">Orientação do Nariz (Yaw)</label>
+                <label for="headingModeSelect" class="block text-[11px] font-medium text-slate-600 mb-1">Direção da frente do drone (guinada)</label>
                 <select id="headingModeSelect" class="w-full bg-white border border-slate-300 rounded-xl px-2.5 py-1.5 text-xs text-slate-800">
                   <option value="followWayline" selected>Seguir Direção da Rota (followWayline)</option>
                   <option value="towardPOI">Apontar para Ponto de Interesse (towardPOI)</option>
@@ -1318,12 +1503,12 @@ header .text-lg{white-space:nowrap}
           </details>
         </div>
 
-        <!-- CARD POI (Point of Interest) - Visível no Modo Waypoints (PDF Págs. 3 e 7) -->
+        <!-- CARD PDI — Ponto de Interesse - Visível no Modo Waypoints (PDF Págs. 3 e 7) -->
         <div id="poiCard" class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-3">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-1.5">
               <span>🎯</span>
-              <h2 class="text-sm font-bold text-slate-800">POI (Point of Interest)</h2>
+              <h2 class="text-sm font-bold text-slate-800">PDI — Ponto de Interesse</h2>
               <span class="text-xs text-slate-400" title="A câmera e o nariz do drone podem apontar automaticamente para o POI">ⓘ</span>
             </div>
             <span id="poiCoordsBadge" class="text-[11px] font-mono-num text-slate-500">-16.6852, -49.2632</span>
@@ -1335,12 +1520,12 @@ header .text-lg{white-space:nowrap}
             <button id="btnSetPOIMode" type="button"
               class="w-full py-2.5 px-3 rounded-xl bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm transition">
               <span>📍</span>
-              <span>Definir POI no mapa</span>
+              <span>Definir ponto de interesse no mapa</span>
             </button>
             <button id="btnGenerateOrbitPOI" type="button"
               class="w-full py-2.5 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-[#0d5c63] border border-emerald-200 text-xs font-bold flex items-center justify-center gap-1.5 transition">
               <span>🔄</span>
-              <span>Gerar Órbita no POI</span>
+              <span>Gerar órbita ao redor do ponto de interesse</span>
             </button>
           </div>
         </div>
@@ -1352,7 +1537,7 @@ header .text-lg{white-space:nowrap}
           <label for="importFileInput"
             class="cursor-pointer w-full py-2.5 px-4 rounded-2xl bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 shadow-sm transition">
             <span>⬆️</span>
-            <span>Importar KML/KMZ</span>
+            <span>Importar rota (KML/KMZ)</span>
             <input id="importFileInput" type="file" accept=".kml,.kmz,.json,.geojson" class="hidden" />
           </label>
 
@@ -1373,10 +1558,10 @@ header .text-lg{white-space:nowrap}
                 <span class="text-[#0d5c63]">⛰️</span>
                 <h2 class="text-sm font-bold text-slate-800">Acompanhamento de Terreno</h2>
               </div>
-              <div class="text-xs font-semibold text-slate-700 mt-1">Terrain Follow (SRTM)</div>
-              <div class="text-[11px] text-slate-500">Ajusta altitudes para manter AGL constante</div>
+              <div class="text-xs font-semibold text-slate-700 mt-1">Acompanhamento de terreno (SRTM — dados de elevação por satélite)</div>
+              <div class="text-[11px] text-slate-500">Ajusta as altitudes para manter a mesma altura acima do solo</div>
             </div>
-            <label class="m4m-switch" aria-label="Ativar Terrain Follow (SRTM)">
+            <label class="m4m-switch" aria-label="Ativar acompanhamento de terreno (SRTM)">
               <input id="chkTerrainFollowToggle" type="checkbox" />
               <span class="m4m-switch-slider"></span>
             </label>
@@ -1415,7 +1600,7 @@ header .text-lg{white-space:nowrap}
               <span id="terrainLiveCounterText">📍 Plano de voo: <strong>13</strong> pontos de terreno</span>
               <button id="btnFetchTerrain" type="button"
                 class="px-2.5 py-1 rounded-lg bg-[#0d5c63] hover:bg-[#094a50] text-white text-[11px] font-bold transition">
-                Recalcular SRTM
+                Buscar elevação real
               </button>
             </div>
           </div>
@@ -1432,7 +1617,7 @@ header .text-lg{white-space:nowrap}
         <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-3">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
-              <h2 class="text-xs font-bold uppercase tracking-wider text-slate-600">Tabela de Waypoints</h2>
+              <h2 class="text-xs font-bold uppercase tracking-wider text-slate-600">Tabela de Pontos de Rota</h2>
               <span id="wpCountPill" class="px-2 py-0.5 rounded-full text-[11px] font-mono-num font-bold bg-emerald-50 text-[#0d5c63] border border-emerald-200">0 WPs</span>
             </div>
             <button id="btnReverseWaypoints" type="button"
@@ -1444,14 +1629,14 @@ header .text-lg{white-space:nowrap}
           <!-- Editor do Waypoint Selecionado (Inclui #customAngleInput do FIX #4) -->
           <div id="selectedWpEditor" class="p-3 rounded-xl bg-slate-50 border border-emerald-300 space-y-2 hidden">
             <div class="flex items-center justify-between">
-              <span id="selectedWpTitle" class="text-xs font-bold text-[#0d5c63]">Editando Waypoint #1</span>
+              <span id="selectedWpTitle" class="text-xs font-bold text-[#0d5c63]">Editando ponto de rota nº 1</span>
               <button id="btnDeleteSelectedWp" type="button" class="text-xs text-red-600 hover:text-red-700 font-semibold">
                 Excluir Ponto
               </button>
             </div>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
               <div>
-                <label for="editWpAlt" class="block text-[10px] font-semibold text-slate-500">Alt. AGL (m)</label>
+                <label for="editWpAlt" class="block text-[10px] font-semibold text-slate-500">Altura sobre o solo (m)</label>
                 <input id="editWpAlt" type="number" step="1" class="w-full bg-white border border-slate-300 rounded-lg px-2 py-1 text-xs font-mono-num text-slate-800" />
               </div>
               <div>
@@ -1459,7 +1644,7 @@ header .text-lg{white-space:nowrap}
                 <input id="editWpSpeed" type="number" step="0.5" class="w-full bg-white border border-slate-300 rounded-lg px-2 py-1 text-xs font-mono-num text-slate-800" />
               </div>
               <div>
-                <label for="editWpGimbal" class="block text-[10px] font-semibold text-slate-500">Gimbal (°)</label>
+                <label for="editWpGimbal" class="block text-[10px] font-semibold text-slate-500">Câmera (°)</label>
                 <input id="editWpGimbal" type="number" step="5" min="-90" max="30" class="w-full bg-white border border-slate-300 rounded-lg px-2 py-1 text-xs font-mono-num text-slate-800" />
               </div>
               <div>
@@ -1476,7 +1661,7 @@ header .text-lg{white-space:nowrap}
             <!-- FIX #4: Campo numérico #customAngleInput (-180° a 180°), visível apenas quando smoothTransition estiver ativo -->
             <div id="customAngleContainer" class="pt-2 border-t border-slate-200 hidden">
               <label for="customAngleInput" class="block text-[10px] text-[#0d5c63] font-bold mb-1">
-                Ângulo Customizado do WP (Azimute / Yaw: -180° a 180°)
+                Ângulo personalizado do ponto (azimute/guinada: -180° a 180°)
               </label>
               <input id="customAngleInput" type="number" min="-180" max="180" step="1" placeholder="Auto (Direção da Rota)"
                 class="w-full bg-white border border-emerald-400 rounded-lg px-2 py-1 text-xs font-mono-num text-slate-800" />
@@ -1544,7 +1729,7 @@ header .text-lg{white-space:nowrap}
           <button id="btnExportCSV" type="button"
             class="w-full py-2.5 px-3 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 transition">
             <span>⬇️</span>
-            <span>Exportar CSV</span>
+            <span>Exportar planilha (CSV)</span>
           </button>
 
           <button id="btnExportJSON" type="button"
@@ -1684,13 +1869,13 @@ header .text-lg{white-space:nowrap}
   <!-- BOTÕES FLUTUANTES DE CHAT E ASSISTENTE IA MAPS4ME (PDF Págs. 1-52)    -->
   <!-- ===================================================================== -->
   <div id="floatingWidgetsContainer" class="fixed bottom-4 right-4 z-40 flex items-center gap-2.5">
-    <button id="btnFloatingChat" type="button" title="Enviar Feedback / Chat"
+    <button id="btnFloatingChat" type="button" title="Ajuda rápida"
       class="w-12 h-12 rounded-full bg-[#0d5c63] hover:bg-[#094a50] text-white flex items-center justify-center shadow-xl transition">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
       </svg>
     </button>
-    <button id="btnFloatingAI" type="button" title="Assistente IA ZAVA"
+    <button id="btnFloatingAI" type="button" title="Assistente ZAVA (respostas rápidas)"
       class="w-14 h-14 rounded-full bg-slate-400/90 hover:bg-slate-500 text-white flex items-center justify-center shadow-xl border-2 border-white transition text-2xl">
       🤖
     </button>
@@ -1702,7 +1887,7 @@ header .text-lg{white-space:nowrap}
       <div class="flex items-center gap-2.5">
         <span class="text-2xl">🤖</span>
         <div>
-          <div class="text-sm font-bold leading-tight">Assistente IA ZAVA</div>
+          <div class="text-sm font-bold leading-tight">Assistente ZAVA (respostas rápidas)</div>
           <div class="text-[11px] text-emerald-100">Respostas automáticas • Inteligência Artificial</div>
         </div>
       </div>
@@ -1717,7 +1902,7 @@ header .text-lg{white-space:nowrap}
       </div>
     </div>
     <div class="p-2.5 bg-white border-t border-slate-200 flex items-center gap-2">
-      <input id="aiChatInput" type="text" placeholder="Pergunte sobre GSD, terreno, fachada..."
+      <input id="aiChatInput" type="text" placeholder="Pergunte sobre terreno, fachada, exportação..."
         class="flex-1 bg-slate-100 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-[#0d5c63]" />
       <button id="btnSendAiChat" type="button" class="px-3 py-2 rounded-xl bg-[#0d5c63] text-white text-xs font-bold">Enviar</button>
     </div>
@@ -1751,7 +1936,7 @@ header .text-lg{white-space:nowrap}
           <p>O <strong>Modo Fachada</strong> gera um plano de voo vertical para mapear uma parede ou fachada de edificação. Você pode criar o plano de duas formas:</p>
           <ul class="list-disc list-inside space-y-1">
             <li><strong>Desenhar no mapa:</strong> desenhe uma linha reta com 2 pontos representando a base da fachada e informe a altura de início do voo, a altura da edificação e a distância de voo. O sistema calcula tudo automaticamente.</li>
-            <li><strong>Por coordenadas:</strong> informe as coordenadas (geográficas ou UTM) dos pontos inicial e final da fachada, levantadas em campo com GNSS de precisão, e defina os mesmos parâmetros de altura e distância.</li>
+            <li><strong>Por coordenadas:</strong> informe as coordenadas (geográficas ou UTM) dos pontos inicial e final da fachada, levantadas em campo com GNSS (posicionamento por satélite) de precisão, e defina os mesmos parâmetros de altura e distância.</li>
           </ul>
           <!-- Diagrama Ilustrativo 1 (Pág. 28) -->
           <div class="bg-slate-200/80 rounded-xl p-3 text-center">
@@ -1790,7 +1975,7 @@ header .text-lg{white-space:nowrap}
             <h4 class="font-extrabold text-slate-900 text-sm">Modo Por Coordenadas</h4>
             <span class="px-2.5 py-0.5 rounded-full bg-slate-700 text-white text-[10px] font-bold">GNSS de precisão</span>
           </div>
-          <p>Ideal quando você levantou o alinhamento da fachada em campo com <strong>GNSS de precisão (RTK)</strong>. Em vez de desenhar no mapa, você informa diretamente as coordenadas da linha da fachada.</p>
+          <p>Ideal quando você levantou o alinhamento da fachada em campo com <strong>GNSS (posicionamento por satélite) de precisão, tipo RTK (correção em tempo real)</strong>. Em vez de desenhar no mapa, você informa diretamente as coordenadas da linha da fachada.</p>
           <div class="p-3 rounded-xl bg-red-50 border border-red-200 text-red-900 text-xs">
             ⚠️ Coordenadas levantadas com GPS comum (celular, drone sem RTK) podem ter erro de vários metros. Para voos próximos à fachada, use sempre GNSS de precisão e respeite a distância mínima de segurança de <strong>10 m</strong>.
           </div>
@@ -1803,7 +1988,7 @@ header .text-lg{white-space:nowrap}
             <h4 class="font-extrabold text-slate-900 text-sm">O que a linha representa? &amp; Configurações</h4>
             <span class="px-2.5 py-0.5 rounded-full bg-slate-700 text-white text-[10px] font-bold">Segurança</span>
           </div>
-          <p><strong>Distância da parede:</strong> Mínimo 5 m (recomendado ≥ 10 m para drones sem RTK devido a multipath e deriva de GPS). <strong>Sobreposição frontal (vertical):</strong> Padrão 70%. <strong>Sobreposição lateral (horizontal):</strong> Padrão 70%. <strong>Pitch da gimbal:</strong> 0° = horizontal (apontando para a fachada).</p>
+          <p><strong>Distância da parede:</strong> Mínimo 5 m (recomendado ≥ 10 m para drones sem RTK devido a multipath e deriva de GPS). <strong>Sobreposição frontal (vertical):</strong> Padrão 70%. <strong>Sobreposição lateral (horizontal):</strong> Padrão 70%. <strong>Inclinação da câmera:</strong> 0° = horizontal (apontando para a fachada).</p>
         </div>
 
         <!-- 5. Opção Estender Linhas (anti-deriva) & Visualização 3D (Págs. 33-36) -->
@@ -1879,6 +2064,22 @@ header .text-lg{white-space:nowrap}
   </div>
 
   <script>
+(function(){
+  function show(guide){
+    document.body.classList.toggle('show-guide',guide);
+    document.getElementById('tabPlanner').classList.toggle('is-active',!guide);
+    document.getElementById('tabGuide').classList.toggle('is-active',guide);
+    document.getElementById('tabPlanner').setAttribute('aria-selected',String(!guide));
+    document.getElementById('tabGuide').setAttribute('aria-selected',String(guide));
+    window.scrollTo({top:0});
+    if(!guide){setTimeout(function(){try{if(typeof map!=='undefined'&&map.invalidateSize)map.invalidateSize();}catch(e){}},80);}
+  }
+  document.getElementById('tabPlanner').addEventListener('click',function(){show(false)});
+  document.getElementById('tabGuide').addEventListener('click',function(){show(true)});
+  document.querySelectorAll('[data-open-guide]').forEach(function(b){b.addEventListener('click',function(){show(true);var d=document.getElementById(b.getAttribute('data-open-guide'));if(d){d.open=true;d.scrollIntoView({behavior:'smooth'});}})});
+})();
+</script>
+<script>
     // ============================================================================
     // SECURITY & VALIDATION HELPERS (PRESERVING FIX #1, FIX #2, FIX #3, FIX #4, FIX #5)
     // ============================================================================
@@ -1942,9 +2143,7 @@ header .text-lg{white-space:nowrap}
     const VALID_WPML_HEIGHT_MODES = [
       'relativeToStartPoint',
       'aboveGroundLevel',
-      'realTimeFollowSurface',
-      'relativeToTakeoff',
-      'WGS84'
+      'realTimeFollowSurface'
     ];
 
     function resolveWpmlHeightMode() {
@@ -2295,9 +2494,9 @@ header .text-lg{white-space:nowrap}
 
       // Atualiza painel "Especificações do sensor" (PDF Pág. 6)
       document.getElementById('specSensorDim').textContent = `Sensor: ${cam.sensorW}×${cam.sensorH} mm`;
-      document.getElementById('specFocalFov').textContent = `Focal: ${cam.focalLen} mm | FOV: ${cam.fov}°`;
+      document.getElementById('specFocalFov').textContent = `Distância focal: ${cam.focalLen} mm | Campo de visão (FOV): ${cam.fov}°`;
       document.getElementById('specMegapixels').textContent = `${cam.mp} MP`;
-      document.getElementById('specGsdLine').textContent = `GSD: ${gsdCm.toFixed(2)} cm/px`;
+      document.getElementById('specGsdLine').textContent = `Resolução no solo (GSD): ${gsdCm.toFixed(2)} cm/px`;
       document.getElementById('specCoverageLine').textContent = `Largura cobertura: ${footprintW.toFixed(1)} m`;
 
       return {
@@ -2742,7 +2941,7 @@ header .text-lg{white-space:nowrap}
       }
 
       // Se Terrain Follow estiver ativo, aplica o ajuste de altitude sobre o solo relativo à decolagem
-      if (cfg.terrainFollowEnabled && state.mode !== 'facade') {
+      if (cfg.terrainFollowEnabled && state.terrainApplied && state.mode !== 'facade') {
         const homeElev = state.homePoint.elevation ?? state.homePoint.groundElev;
         state.waypoints.forEach(wp => {
           const diff = (wp.elevation ?? wp.groundElev) - homeElev;
@@ -2848,7 +3047,7 @@ header .text-lg{white-space:nowrap}
       document.getElementById('kpiDistance').textContent = wps.length > 1
         ? (totalDistM >= 1000 ? `${(totalDistM / 1000).toFixed(2)} km` : `${Math.round(totalDistM)} m`)
         : '—';
-      document.getElementById('kpiGsdSub').textContent = `GSD: ${cfg.gsdCm.toFixed(2)} cm/px`;
+      document.getElementById('kpiGsdSub').textContent = `Resolução no solo (GSD): ${cfg.gsdCm.toFixed(2)} cm/px`;
 
       if (durationSec > 0) {
         const mins = Math.floor(durationSec / 60);
@@ -3149,7 +3348,7 @@ header .text-lg{white-space:nowrap}
               weight: 1,
               fillOpacity: 0.95
             }).addTo(layerGroupWaypoints);
-            dot.bindTooltip(`WP #${idx + 1} (Terreno: ${wp.groundElev}m • Voo: ${wp.alt}m)`, { direction: 'top' });
+            dot.bindTooltip(`Ponto ${idx + 1} (terreno: ${wp.groundElev} m • voo: ${wp.alt} m)`, { direction: 'top' });
             dot.on('click', () => selectWaypoint(idx));
             return;
           }
@@ -3168,7 +3367,7 @@ header .text-lg{white-space:nowrap}
             })
           }).addTo(layerGroupWaypoints);
 
-          marker.bindTooltip(`WP #${idx + 1} • Alt: ${wp.alt}m • Gimbal: ${wp.gimbalPitch}° • Yaw: ${wp.heading}°`, { direction: 'top' });
+          marker.bindTooltip(`Ponto ${idx + 1} • altura: ${wp.alt} m • câmera: ${wp.gimbalPitch}° • direção: ${wp.heading}°`, { direction: 'top' });
           marker.on('click', (ev) => {
             L.DomEvent.stopPropagation(ev);
             selectWaypoint(idx);
@@ -3275,7 +3474,7 @@ header .text-lg{white-space:nowrap}
       if (state.selectedWpIndex !== null && state.waypoints[state.selectedWpIndex]) {
         const wp = state.waypoints[state.selectedWpIndex];
         document.getElementById('selectedWpEditor').classList.remove('hidden');
-        document.getElementById('selectedWpTitle').textContent = `Editando Waypoint #${state.selectedWpIndex + 1}`;
+        document.getElementById('selectedWpTitle').textContent = `Editando ponto de rota nº ${state.selectedWpIndex + 1}`;
         document.getElementById('editWpAlt').value = wp.alt;
         document.getElementById('editWpSpeed').value = wp.speed;
         document.getElementById('editWpGimbal').value = wp.gimbalPitch;
@@ -3464,48 +3663,39 @@ header .text-lg{white-space:nowrap}
         return;
       }
       const targetAgl = Math.max(5, Number(document.getElementById('flightAltitudeInput').value) || 100);
-
+      const allPts = [state.homePoint, ...state.waypoints];
+      const elevs = [];
       try {
-        const allPts = [state.homePoint, ...state.waypoints];
-        const lats = allPts.slice(0, 90).map(p => p.lat.toFixed(5)).join(',');
-        const lngs = allPts.slice(0, 90).map(p => p.lng.toFixed(5)).join(',');
-        const resp = await fetch(`https://api.open-meteo.com/v1/elevation?latitude=${lats}&longitude=${lngs}`);
-        if (resp.ok) {
+        // A API aceita até 100 pontos por consulta: consulta em blocos para cobrir TODOS os waypoints
+        for (let i = 0; i < allPts.length; i += 100) {
+          const chunk = allPts.slice(i, i + 100);
+          const lats = chunk.map(p => p.lat.toFixed(5)).join(',');
+          const lngs = chunk.map(p => p.lng.toFixed(5)).join(',');
+          const resp = await fetch(`https://api.open-meteo.com/v1/elevation?latitude=${lats}&longitude=${lngs}`);
+          if (!resp.ok) throw new Error('HTTP ' + resp.status);
           const data = await resp.json();
-          if (data && Array.isArray(data.elevation) && data.elevation.length > 0) {
-            const homeElev = Math.round(data.elevation[0]);
-            state.homePoint.groundElev = homeElev;
-            state.homePoint.elevation = homeElev;
-            for (let i = 0; i < state.waypoints.length; i++) {
-              const elev = Math.round(data.elevation[Math.min(i + 1, data.elevation.length - 1)]);
-              state.waypoints[i].groundElev = elev;
-              state.waypoints[i].elevation = elev;
-            }
+          if (!data || !Array.isArray(data.elevation) || data.elevation.length !== chunk.length || data.elevation.some(v => !Number.isFinite(v))) {
+            throw new Error('resposta inválida');
           }
+          elevs.push(...data.elevation);
         }
       } catch (err) {
-        if (!state.terrainApplied) {
-          const homeElev = syntheticGroundElevation(state.homePoint.lat, state.homePoint.lng);
-          state.homePoint.groundElev = homeElev;
-          state.homePoint.elevation = homeElev;
-          state.waypoints.forEach(wp => {
-            const elev = syntheticGroundElevation(wp.lat, wp.lng);
-            wp.groundElev = elev;
-            wp.elevation = elev;
-          });
-        }
+        // SEGURANÇA: sem elevação real, NÃO inventa dados e NÃO altera as altitudes.
+        state.terrainApplied = false;
+        showToast('⚠️ Não foi possível obter a elevação real (precisa de internet). As altitudes NÃO foram ajustadas ao terreno.');
+        return;
       }
-
-      // FIX #3: Marcar que a elevação real foi aplicada
-      state.terrainApplied = true;
-
-      const homeElev = state.homePoint.elevation ?? state.homePoint.groundElev;
-      state.waypoints.forEach(wp => {
-        const terrainDiff = (wp.elevation ?? wp.groundElev) - homeElev;
-        wp.alt = Math.max(5, Math.round(targetAgl + terrainDiff));
+      const homeElev = Math.round(elevs[0]);
+      state.homePoint.groundElev = homeElev;
+      state.homePoint.elevation = homeElev;
+      state.waypoints.forEach((wp, i) => {
+        const elev = Math.round(elevs[i + 1]);
+        wp.groundElev = elev;
+        wp.elevation = elev;
+        wp.alt = Math.max(5, Math.round(targetAgl + (elev - homeElev)));
       });
-
-      showToast(`Terreno SRTM aplicado (${state.waypoints.length} pontos, Ref Decolagem: ${homeElev}m)!`);
+      state.terrainApplied = true;
+      showToast(`Terreno real aplicado (${state.waypoints.length} pontos, decolagem a ${homeElev} m do nível do mar).`);
       recalculateStatsAndRender();
     }
 
@@ -3639,6 +3829,20 @@ header .text-lg{white-space:nowrap}
       const useGlobalHeading = (cfg.headingMode === 'followWayline') ? 1 : 0;
       const useGlobalTurn = (cfg.turnMode === 'toPointAndStopWithDiscontinuityCurvature') ? 1 : 0;
 
+      // Distância (m) e duração (s) totais da rota, exigidas pelo formato waylines.wpml
+      let wlDist = 0, wlDur = 0;
+      for (let k = 1; k < state.waypoints.length; k++) {
+        const a = state.waypoints[k - 1], b = state.waypoints[k];
+        const R = 6371000, toR = Math.PI / 180;
+        const dLat = (b.lat - a.lat) * toR, dLng = (b.lng - a.lng) * toR;
+        const h = Math.sin(dLat / 2) ** 2 + Math.cos(a.lat * toR) * Math.cos(b.lat * toR) * Math.sin(dLng / 2) ** 2;
+        const d2 = 2 * R * Math.asin(Math.sqrt(h));
+        const dz = b.alt - a.alt;
+        const seg = Math.sqrt(d2 * d2 + dz * dz);
+        wlDist += seg;
+        wlDur += seg / Math.max(0.5, b.speed || cfg.speed);
+      }
+
       const placemarksTemplate = state.waypoints.map((wp, idx) => {
         const includeTemplateActionGroup = (idx === 0 || validateWaypointAction(wp.action) !== 'none');
         const actionGroupXml = includeTemplateActionGroup
@@ -3696,7 +3900,7 @@ header .text-lg{white-space:nowrap}
       <wpml:waypointSpeed>${wp.speed}</wpml:waypointSpeed>${headingParamXml}
       <wpml:waypointTurnParam>
         <wpml:waypointTurnMode>${escapeHtml(cfg.turnMode)}</wpml:waypointTurnMode>
-        <wpml:waypointTurnDampingDist>0</wpml:waypointTurnDampingDist>
+        <wpml:waypointTurnDampingDist>${cfg.turnMode === 'toPointAndStopWithDiscontinuityCurvature' ? 0 : 0.2}</wpml:waypointTurnDampingDist>
       </wpml:waypointTurnParam>
       <wpml:waypointGimbalHeadingParam>
         <wpml:waypointGimbalPitchAngle>${wp.gimbalPitch}</wpml:waypointGimbalPitchAngle>
@@ -3707,7 +3911,7 @@ header .text-lg{white-space:nowrap}
       const templateKml = `<?xml version="1.0" encoding="UTF-8"?>
 <kml xmlns="http://www.opengis.net/kml/2.2" xmlns:wpml="http://www.dji.com/wpmz/1.0.2">
 <Document>
-  <wpml:author>DroneMapConnect</wpml:author>
+  <wpml:author>ZAVA MAPING</wpml:author>
   <wpml:createTime>${nowMs}</wpml:createTime>
   <wpml:updateTime>${nowMs}</wpml:updateTime>
 
@@ -3715,7 +3919,7 @@ header .text-lg{white-space:nowrap}
     <wpml:flyToWaylineMode>safely</wpml:flyToWaylineMode>
     <wpml:finishAction>${escapeHtml(cfg.finishAction)}</wpml:finishAction>
     <wpml:exitOnRCLost>executeLostAction</wpml:exitOnRCLost>
-    <wpml:executeRCLostAction>hover</wpml:executeRCLostAction>
+    <wpml:executeRCLostAction>goBack</wpml:executeRCLostAction>
     <wpml:takeOffSecurityHeight>${cfg.safeAlt}</wpml:takeOffSecurityHeight>
     <wpml:globalTransitionalSpeed>${cfg.speed}</wpml:globalTransitionalSpeed>
     <wpml:droneInfo>
@@ -3756,7 +3960,7 @@ header .text-lg{white-space:nowrap}
       <wpml:flyToWaylineMode>safely</wpml:flyToWaylineMode>
       <wpml:finishAction>${escapeHtml(cfg.finishAction)}</wpml:finishAction>
       <wpml:exitOnRCLost>executeLostAction</wpml:exitOnRCLost>
-      <wpml:executeRCLostAction>hover</wpml:executeRCLostAction>
+      <wpml:executeRCLostAction>goBack</wpml:executeRCLostAction>
       <wpml:takeOffSecurityHeight>${cfg.safeAlt}</wpml:takeOffSecurityHeight>
       <wpml:globalTransitionalSpeed>${cfg.speed}</wpml:globalTransitionalSpeed>
       <wpml:droneInfo>
@@ -3774,6 +3978,8 @@ header .text-lg{white-space:nowrap}
       <wpml:templateId>0</wpml:templateId>
       <wpml:executeHeightMode>${selectedHeightMode}</wpml:executeHeightMode>
       <wpml:waylineId>0</wpml:waylineId>
+      <wpml:distance>${wlDist.toFixed(2)}</wpml:distance>
+      <wpml:duration>${wlDur.toFixed(2)}</wpml:duration>
       <wpml:autoFlightSpeed>${cfg.speed}</wpml:autoFlightSpeed>${placemarksWaylines}
     </Folder>
   </Document>
@@ -3785,11 +3991,53 @@ header .text-lg{white-space:nowrap}
     // ============================================================================
     // EXPORTAÇÕES: .KMZ (DJI FLY), .KML (GOOGLE EARTH), .CSV, .JSON (POTENSIC)
     // ============================================================================
+    // ============================================================================
+    // VERIFICAÇÃO DE SEGURANÇA PRÉ-VOO (executada antes de exportar o KMZ)
+    // ============================================================================
+    function runPreflightChecks() {
+      const wps = state.waypoints;
+      const cfg = getMissionConfig();
+      const warns = [];
+      const blockers = [];
+      const hav = (a, b) => {
+        const R = 6371000, r = Math.PI / 180;
+        const dLat = (b.lat - a.lat) * r, dLng = (b.lng - a.lng) * r;
+        const h = Math.sin(dLat / 2) ** 2 + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin(dLng / 2) ** 2;
+        return 2 * R * Math.asin(Math.sqrt(h));
+      };
+      if (wps.some(w => !Number.isFinite(w.lat) || !Number.isFinite(w.lng) || !Number.isFinite(w.alt) || !Number.isFinite(w.speed))) {
+        blockers.push('Há waypoints com valores inválidos (coordenada, altitude ou velocidade).');
+      }
+      if (wps.some(w => w.alt <= 0)) blockers.push('Há waypoints com altitude igual ou menor que zero.');
+      if (blockers.length) { alert('EXPORTAÇÃO BLOQUEADA:\n\n• ' + blockers.join('\n• ')); return false; }
+
+      const maxAlt = Math.max(...wps.map(w => w.alt));
+      if (state.mode !== 'facade' && maxAlt > 120) warns.push(`Altitude máxima de ${maxAlt} m. O limite geral no Brasil (categoria aberta da ANAC) é 120 m acima do solo; para voo recreativo a ICA 100-40 limita a cerca de 60 m.`);
+      if (cfg.terrainFollowEnabled && !state.terrainApplied) warns.push('"Acompanhar terreno" está ligado, mas a elevação real NÃO foi carregada: as altitudes estão planas. Toque em "Buscar elevação real" com internet.');
+      if (state.terrainApplied) {
+        const minAlt = Math.min(...wps.map(w => w.alt));
+        if (minAlt < 10) warns.push(`Algum waypoint ficou a apenas ${minAlt} m de altura. Confira obstáculos (árvores, postes, fios).`);
+      }
+      if (state.homePoint && Number.isFinite(state.homePoint.lat)) {
+        const maxD = Math.max(...wps.map(w => hav(state.homePoint, w)));
+        if (maxD > 500) warns.push(`Há pontos a ${Math.round(maxD)} m do ponto de decolagem. Mantenha o drone sempre à vista (linha de visada).`);
+      }
+      let dist = 0;
+      for (let i = 1; i < wps.length; i++) dist += hav(wps[i - 1], wps[i]);
+      const durMin = dist / Math.max(1, cfg.speed) / 60;
+      if (durMin > 20) warns.push(`Tempo estimado de ${durMin.toFixed(0)} min. Considere dividir a missão em mais de uma bateria (reserve ao menos 30% de carga).`);
+      if (wps.length > 99) warns.push(`A rota tem ${wps.length} waypoints. Alguns aplicativos DJI limitam o número de pontos; teste a importação antes de ir a campo.`);
+
+      if (!warns.length) return true;
+      return confirm('VERIFICAÇÃO DE SEGURANÇA — ' + warns.length + ' alerta(s):\n\n• ' + warns.join('\n\n• ') + '\n\nRevise o plano. Deseja exportar mesmo assim?');
+    }
+
     async function exportKMZArchive() {
       if (state.waypoints.length < 2) {
         showToast('Adicione pelo menos 2 waypoints antes de exportar o KMZ.');
         return;
       }
+      if (!runPreflightChecks()) return;
       const { templateKml, waylinesWpml } = generateDjiWpmlFiles();
       const zip = new JSZip();
       const wpmzFolder = zip.folder('wpmz');
