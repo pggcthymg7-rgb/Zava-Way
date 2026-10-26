@@ -1,0 +1,23 @@
+{
+  "name": "ZAVA MAPING — Planejador de Missões DJI",
+  "short_name": "ZAVA MAPING",
+  "description": "Sistema de Planejamento de Missões Fotogramétricas e Exportação DJI WPML 1.0.2",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#1a1d29",
+  "theme_color": "#1a1d29",
+  "icons": [
+    {
+      "src": "apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
